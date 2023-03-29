@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArgumentParser", "library\ArgumentParser.csproj", "{7066D4BD-0E62-41ED-B6E9-5CDFBD14DB4E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "test\test.csproj", "{423FE246-54F9-494D-8C3C-A9C5010F94FA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7066D4BD-0E62-41ED-B6E9-5CDFBD14DB4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7066D4BD-0E62-41ED-B6E9-5CDFBD14DB4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7066D4BD-0E62-41ED-B6E9-5CDFBD14DB4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7066D4BD-0E62-41ED-B6E9-5CDFBD14DB4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{423FE246-54F9-494D-8C3C-A9C5010F94FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{423FE246-54F9-494D-8C3C-A9C5010F94FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{423FE246-54F9-494D-8C3C-A9C5010F94FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{423FE246-54F9-494D-8C3C-A9C5010F94FA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

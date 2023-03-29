@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="Parser.cs" />
+    <Content Include="Validator.cs" />
+    <Content Include="Context\DefaultContext.cs" />
+    <Content Include="Context\FlagContext.cs" />
+    <Content Include="Context\HandlerList.cs" />
+    <Content Include="Context\PropertyContext.cs" />
+    <Content Include="Type\FlagType.cs" />
+    <Content Include="Type\PropertyType.cs" />
+    <Content Include="Type\ValueTypeEnum.cs" />
+  </ItemGroup>
+</Project>
