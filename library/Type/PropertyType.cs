@@ -180,7 +180,7 @@ public class Property
     internal bool AllowMultiple() => this.m_allowMultiple;
     internal VALUE_TYPE_ENUM ValueType() => this.m_property_type;
     internal System.Type EnumType() => this.m_property_value_enum;
-    internal string Key() => this.m_property_name;
+    internal string Key() => this.m_selectors[0];
     internal string Description() => this.m_description;
     internal string? Delimiter() => this.m_delimiter;
     internal string? Value() => this.m_property_value;
