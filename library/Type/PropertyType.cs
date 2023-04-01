@@ -42,7 +42,7 @@ public class Property
         }
         this.m_property_value_enum = @enum;
 
-        this.Value(@default);
+        this.Value(this.m_property_value);
     }
 
     /// <summary>
