@@ -10,7 +10,7 @@ public class Validator
     public Validator()
     {
         this.Set(VALUE_TYPE_ENUM.STRING, (s) => true);
-        this.Set(VALUE_TYPE_ENUM.CSV, (s) => s.Contains(","));
+        this.Set(VALUE_TYPE_ENUM.CSV, (s) => true);
         this.Set(VALUE_TYPE_ENUM.INTEGER, (s) => int.TryParse(s, out _));
         this.Set(VALUE_TYPE_ENUM.FLOAT, (s) => float.TryParse(s, out _));
         this.Set(VALUE_TYPE_ENUM.BOOLEAN, (s) => bool.TryParse(s, out _));
