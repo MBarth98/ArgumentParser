@@ -14,17 +14,16 @@ public class Enumeration
     [InlineData("enum=THIRD", true)]
     public void Content(string cmdline, bool willThrow)
     {
-        var cmd = new Parser(cmdline);
-        
-        cmd.AddHandler(new Property("enum", typeof(TestEnum)), (context) => {});
+        var exec = new Executor();
+        exec.AddHandler(new Property("enum", typeof(TestEnum)), (context) => {});
 
         if (willThrow)
         {
-            Assert.ThrowsAny<Exception>(() => cmd.Process());
+            Assert.ThrowsAny<Exception>(() => new Scanner(cmdline, exec).ParseAndCommit());
         }
         else
         {
-            cmd.Process();
+            new Scanner(cmdline, exec).ParseAndCommit();
         }
     }
 }

@@ -12,12 +12,14 @@ public class CSV
     [InlineData("csv=1,2 3", 2)] 
     public void ElementCount(string cmdline, int expected)
     {
-        var cmd = new Parser(cmdline);
-        
-        cmd.AddHandler(new Property("csv", "CommaSeparatedList", VALUE_TYPE_ENUM.CSV), (context) => {
+        var exec = new Executor();
+        exec.AddHandler(new Property("csv", "CommaSeparatedList", VALUE_TYPE_ENUM.CSV), (context) => {
             Assert.Equal(context.value.Split(',').Length, expected);
         });
 
-        cmd.Process();
+        var cmd = new Scanner(cmdline, exec);
+
+
+        cmd.ParseAndCommit();
     }
 }

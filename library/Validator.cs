@@ -16,8 +16,8 @@ public class Validator
         this.Set(VALUE_TYPE_ENUM.BOOLEAN, (s) => bool.TryParse(s, out _));
         this.Set(VALUE_TYPE_ENUM.IP, (s) => IPAddress.TryParse(s, out _));
         this.Set(VALUE_TYPE_ENUM.URL, (s) => Uri.TryCreate(s, UriKind.Absolute, out _));
-        this.Set(VALUE_TYPE_ENUM.FILE, (s) => System.IO.File.Exists(s));
-        this.Set(VALUE_TYPE_ENUM.DIRECTORY, (s) => System.IO.Directory.Exists(s));
+        this.Set(VALUE_TYPE_ENUM.FILE, File.Exists);
+        this.Set(VALUE_TYPE_ENUM.DIRECTORY, Directory.Exists);
         this.Set(VALUE_TYPE_ENUM.ENUMERATION, (actual, valid) => valid.Contains(actual.ToUpper()));
     }
 
@@ -28,22 +28,23 @@ public class Validator
 
     internal void Set(VALUE_TYPE_ENUM type, System.Func<string, string[], bool> validator)
     {
-        this.validators[type] = (s) => {          
-            return validator(s[0] as string ?? "", s[1] as string[] ?? new string[0] );
-        };
+        this.validators[type] = (s) => 
+            validator(s[0] as string ?? "", s[1] as string[] ?? Array.Empty<string>() );
     }
 
     internal void Set(VALUE_TYPE_ENUM type, System.Func<string, bool> validator)
     {
         if (type == VALUE_TYPE_ENUM.ENUMERATION)
         {
-            throw new Exception("Use Set(VALUE_TYPE, Func<string, bool>) instead", new ArgumentException(nameof(validator)));
+            throw new Exception("Use Set(VALUE_TYPE, Func<string, bool>) instead", 
+                new ArgumentException(nameof(validator)));
         }
 
         this.validators[type] = (s) => { 
             if (s.Length != 1 ||s[0] is not string @string)
             {
-                throw new Exception("Incorrect types", new ArgumentException(nameof(validator)));
+                throw new Exception("Incorrect types", 
+                    new ArgumentException(nameof(validator)));
             }
 
             return validator(@string);

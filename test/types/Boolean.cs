@@ -13,11 +13,13 @@ public class Boolean
     [InlineData("test=faLsE", false)] // by induction we can assume that other cases are handled
     public void Traditional(string cmdline, bool expected)
     {
-        var cmd = new Parser(cmdline);
-        cmd.AddHandler(new Property("test", "BOOLEAN", VALUE_TYPE_ENUM.BOOLEAN), (context) => {
+        var exec = new Executor();
+       
+        exec.AddHandler(new Property("test", "BOOLEAN", VALUE_TYPE_ENUM.BOOLEAN), (context) => {
             Assert.Equal(expected, bool.Parse(context.value));
         });
-        cmd.Process();
+
+        new Scanner(cmdline, exec).ParseAndCommit();
     }
 
     #if EXPERIMENTAL
@@ -37,7 +39,7 @@ public class Boolean
     [InlineData("test=18446744073709551616", true)] // ulong.MAX + 1    
     public void Numbers(string cmdline, bool expected)
     {
-        var cmd = new Parser(cmdline);
+        var cmd = new Scanner(cmdline);
         cmd.AddHandler(new Property("test", "NUMBERS", VALUE_TYPE_ENUM.BOOLEAN), (context) => {
             Assert.Equal(expected, bool.Parse(context.value));
         });
@@ -59,7 +61,7 @@ public class Boolean
     [InlineData("test=oN",  true)]
     public void Switch(string cmdline, bool expected)
     {
-        var cmd = new Parser(cmdline);
+        var cmd = new Scanner(cmdline);
         cmd.AddHandler(new Property("test", "SWITCH", VALUE_TYPE_ENUM.BOOLEAN), (context) => {
             Assert.Equal(expected, bool.Parse(context.value));
         });

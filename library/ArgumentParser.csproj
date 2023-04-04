@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="Parser.cs" />
+    <Content Include="Scanner.cs" />
     <Content Include="Validator.cs" />
     <Content Include="Context\DefaultContext.cs" />
     <Content Include="Context\FlagContext.cs" />

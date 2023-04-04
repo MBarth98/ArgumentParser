@@ -5,19 +5,16 @@ public class Order
     [Fact]
     public void Test()
     {
-        var cmd = new Parser("a b c d");
+        var exec = new Executor();
+        
         var order = new List<string>();
-        cmd.AddHandler(new Flag("a", "A"), (context) => { order.Add("a"); });
-        cmd.AddHandler(new Flag("b", "B"), (context) => { order.Add("b"); });
-        cmd.AddHandler(new Flag("c", "C"), (context) => { order.Add("c"); });
-        cmd.AddHandler(new Flag("d", "D"), (context) => { order.Add("d"); });
-        cmd.Process();
+        exec.AddHandler(new Flag("a", "A"), (context) => { order.Add("a"); });
+        exec.AddHandler(new Flag("b", "B"), (context) => { order.Add("b"); });
+        exec.AddHandler(new Flag("c", "C"), (context) => { order.Add("c"); });
+        exec.AddHandler(new Flag("d", "D"), (context) => { order.Add("d"); });
+
+        new Scanner("a b c d", exec).ParseAndCommit();
         Assert.Equal(new List<string> { "a", "b", "c", "d" }, order);
     }
 
-    [Fact]
-    public void Test2()
-    {
-        
-    }
 }
