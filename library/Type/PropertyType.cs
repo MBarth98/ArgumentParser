@@ -1,6 +1,9 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System;
+using Argument.Error;
+using ArgumentParser.Error.Validator;
+
 namespace Argument.Type;
 
 
@@ -246,5 +249,5 @@ public class Property
 
     private List<string> m_selectors = new();
 
-    private Validator m_validator = new();
+    private Validator m_validator = new Validator(new DefaultValidators());
 }

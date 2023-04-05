@@ -39,7 +39,7 @@ public class Executor
 
             foreach (var context in contexts)
             {
-                Handlers[context.index] = () => handler.callback.Invoke(context);
+                Handlers[context.Index] = () => handler.callback.Invoke(context);
             }
         }
 
@@ -48,7 +48,7 @@ public class Executor
             if (contexts.Count <= 0) continue;
             foreach (var keyValue in contexts)
             {
-                Handlers[keyValue.index] = () => handler.callback.Invoke(keyValue);
+                Handlers[keyValue.Index] = () => handler.callback.Invoke(keyValue);
             }
         }
 
@@ -56,7 +56,7 @@ public class Executor
 
         foreach (var defaultContext in DefaultHandler.Contexts)
         {
-            Handlers[defaultContext.index] = () => this.DefaultHandler.Callback.Invoke(defaultContext);
+            Handlers[defaultContext.Index] = () => this.DefaultHandler.Callback.Invoke(defaultContext);
         }
     }
 

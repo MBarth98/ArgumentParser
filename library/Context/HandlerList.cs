@@ -1,16 +1,16 @@
 namespace Argument.Context;
 
-internal class HandlerList<Handler, Context> : List<(Handler handler, List<Context> contexts)> 
-where Handler : class
-where Context : DefaultContext 
+internal class HandlerList<THandler, TContext> : List<(THandler handler, List<TContext> contexts)> 
+where THandler : class
+where TContext : DefaultContext 
 {
-    public HandlerList<Handler, Context> Add(Handler handler)
+    public HandlerList<THandler, TContext> Add(THandler handler)
     {
-        this.Add((handler, new()));
+        this.Add((handler, new List<TContext>()));
         return this;
     }
 
-    public HandlerList<Handler, Context> Add(Handler? handler, Context context) 
+    public HandlerList<THandler, TContext> Add(THandler? handler, TContext context) 
     {
         if (handler is null)
         {
@@ -18,11 +18,11 @@ where Context : DefaultContext
             return this;
         }
 
-        this.Where((next) => next.handler.Equals(handler)).SingleOrDefault().contexts.Add(context);
+        this.SingleOrDefault(next => next.handler.Equals(handler)).contexts.Add(context);
         return this;
     }
 }
 
-class FlagHandlerList : HandlerList<FlagHandler, FlagContext> { }
-class PropertyHandlerList : HandlerList<PropertyHandler, PropertyContext> { }
-class DefaultHandlerList : HandlerList<DefaultHandler, DefaultContext> { }
+internal class FlagHandlerList : HandlerList<FlagHandler, FlagContext> { }
+
+internal class PropertyHandlerList : HandlerList<PropertyHandler, PropertyContext> { }
