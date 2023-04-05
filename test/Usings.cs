@@ -1,4 +1,4 @@
 global using Xunit;
-global using Argument;
-global using Argument.Type;
-global using Argument.Context;
+global using ArgumentParser;
+global using ArgumentParser.Type;
+global using ArgumentParser.Context;

@@ -1,8 +1,8 @@
-﻿namespace Examples;
+﻿using ArgumentParser;
+using ArgumentParser.Type;
 
-using Argument;
-using Argument.Context;
-using Argument.Type;
+namespace Examples;
+
 
 public class Program
 {

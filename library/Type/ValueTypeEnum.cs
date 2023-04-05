@@ -1,4 +1,4 @@
-namespace Argument.Type;
+namespace ArgumentParser.Type;
 
 
 public enum VALUE_TYPE_ENUM

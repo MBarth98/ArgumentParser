@@ -1,7 +1,7 @@
-namespace Argument;
+namespace ArgumentParser;
 
-using Argument.Context;
-using Argument.Type;
+using ArgumentParser.Context;
+using ArgumentParser.Type;
 
 public class Scanner
 {

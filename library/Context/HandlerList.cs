@@ -1,4 +1,4 @@
-namespace Argument.Context;
+namespace ArgumentParser.Context;
 
 internal class HandlerList<THandler, TContext> : List<(THandler handler, List<TContext> contexts)> 
 where THandler : class

@@ -1,10 +1,10 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System;
-using Argument.Error;
+using ArgumentParser.Error;
 using ArgumentParser.Error.Validator;
 
-namespace Argument.Type;
+namespace ArgumentParser.Type;
 
 
 public class Property
@@ -178,12 +178,15 @@ public class Property
     }
 
     internal bool IsRequired() => this.m_isRequired;
+    internal bool IsCaseSensitive() => this.m_isCaseSensitive;
+
     internal bool AllowEmpty() => this.m_allowEmpty;
     internal bool AllowWhiteSpace() => this.m_allowWhiteSpace;
     internal bool AllowMultiple() => this.m_allowMultiple;
     internal VALUE_TYPE_ENUM ValueType() => this.m_property_type;
     internal System.Type EnumType() => this.m_property_value_enum;
     internal string Key() => this.m_selectors[0];
+    internal string Name() => this.m_property_name;
     internal string Description() => this.m_description;
     internal string? Delimiter() => this.m_delimiter;
     internal string? Value() => this.m_property_value;
@@ -212,12 +215,12 @@ public class Property
     /// <summary>
     /// allow multiple instances of the same key
     /// </summary>
-    private bool m_allowMultiple = false;
+    private bool m_allowMultiple;
 
     /// <summary>
     /// expected data type of the value (default: string)
     /// </summary>
-    private VALUE_TYPE_ENUM m_property_type = VALUE_TYPE_ENUM.STRING;
+    private VALUE_TYPE_ENUM m_property_type;
 
     /// <summary>
     /// if valueType is set to ENUM, this must be the enum type
@@ -247,7 +250,7 @@ public class Property
     /// </summary>
     private string m_property_value = "";
 
-    private List<string> m_selectors = new();
+    private readonly List<string> m_selectors = new();
 
-    private Validator m_validator = new Validator(new DefaultValidators());
+    private readonly ValidatorImpl m_validator = new(new DefaultValidators());
 }

@@ -1,6 +1,6 @@
 using ArgumentParser.Error.Exceptional;
 
-namespace Argument.Context;
+namespace ArgumentParser.Context;
 
 public class DefaultContext
 {

@@ -2,7 +2,7 @@
 
 public class ParserException : ArgumentBaseException
 {
-    public ParserException()
+    public ParserException(string msg) : base(msg)
     {
     }
 }

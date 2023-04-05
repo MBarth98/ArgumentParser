@@ -1,12 +1,10 @@
+namespace ArgumentParser.Error.Validator;
 
-namespace Argument.Error;
-
-using ArgumentParser.Error.Validator;
 using Type;
 
-public class Validator
+public class ValidatorImpl
 {
-    public Validator(IValidators impl)
+    public ValidatorImpl(IValidators impl)
     {
         Set(VALUE_TYPE_ENUM.STRING, impl.ValidateString);
         Set(VALUE_TYPE_ENUM.CSV, impl.ValidateCsv);
@@ -22,12 +20,12 @@ public class Validator
 
     public bool Validate(VALUE_TYPE_ENUM type, params object[] args)
     {
-        return validators[type](args);
+        return m_validators[type](args);
     }
 
     internal void Set(VALUE_TYPE_ENUM type, Func<string, string[], bool> validator)
     {
-        validators[type] = (s) => 
+        m_validators[type] = (s) => 
             validator(s[0] as string ?? "", s[1] as string[] ?? Array.Empty<string>() );
     }
 
@@ -35,15 +33,13 @@ public class Validator
     {
         if (type == VALUE_TYPE_ENUM.ENUMERATION)
         {
-            throw new Exception("Use Set(VALUE_TYPE, Func<string, bool>) instead", 
-                new ArgumentException(nameof(validator)));
+            throw new InvalidOperationException("Validator can't be bound to an Enumeration.");
         }
 
-        validators[type] = (s) => { 
+        m_validators[type] = (s) => { 
             if (s.Length != 1 ||s[0] is not string @string)
             {
-                throw new Exception("Incorrect types", 
-                    new ArgumentException(nameof(validator)));
+                throw new InvalidOperationException("Validator has an invalid argument list");
             }
 
             return validator(@string);
@@ -51,6 +47,6 @@ public class Validator
     }
 
     private delegate bool ValidatorDelegate(params object[] args);
-    private Dictionary<VALUE_TYPE_ENUM,  ValidatorDelegate> validators = new();
+    private readonly Dictionary<VALUE_TYPE_ENUM, ValidatorDelegate> m_validators = new();
 
 }

@@ -2,7 +2,7 @@
 
 public class PropertyException : ParserException
 {
-    public PropertyException()
+    public PropertyException(string msg) : base(msg)
     {
     }
 }
@@ -10,7 +10,7 @@ public class PropertyException : ParserException
 
 public class EnumPropertyException : PropertyException
 {
-    public EnumPropertyException()
+    public EnumPropertyException(string msg) : base(msg)
     {
     }
 }

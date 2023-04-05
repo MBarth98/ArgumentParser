@@ -1,6 +1,6 @@
-namespace Argument.Context;
+namespace ArgumentParser.Context;
 
-using Argument.Type;
+using Type;
 
 public class PropertyContext : DefaultContext
 {

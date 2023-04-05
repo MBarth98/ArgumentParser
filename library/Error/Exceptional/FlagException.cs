@@ -2,7 +2,7 @@
 
 public class FlagException : ParserException
 {
-    public FlagException()
+    public FlagException(string msg) : base(msg)
     {
     }
 }

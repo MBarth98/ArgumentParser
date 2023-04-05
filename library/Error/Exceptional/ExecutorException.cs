@@ -1,17 +1,10 @@
 ﻿namespace ArgumentParser.Error.Exceptional;
 
-using Argument.Type;
+using ArgumentParser.Type;
+using System.Runtime.CompilerServices;
 
 public class ExecutorException : ArgumentBaseException
 {
-    public ExecutorException() : base() { }
-}
+    public ExecutorException(string msg) : base(msg) { }
 
-
-public class ValidatorException : ExecutorException
-{
-    public ValidatorException(string fieldName, VALUE_TYPE_ENUM setter)
-    {
-
-    }
 }
