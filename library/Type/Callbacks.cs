@@ -10,56 +10,30 @@ namespace ArgumentParser.Type
         FATAL_ERROR,
     }
 
-    public delegate CallbackState DefaultAction(DefaultContext context);
+    
     public delegate CallbackState PropertyAction(PropertyContext context);
-    public delegate CallbackState FlagAction(FlagContext context);
+    public delegate CallbackState FlagAction(ActionContext context);
 
-    internal record PropertyHandler(Property Data, PropertyAction Callback);
-    internal record FlagHandler(Flag Flag, FlagAction Callback);
-    internal record DefaultHandler(DefaultAction Callback);
+    public record PropertyHandler(Property Data, PropertyAction Callback);
+    public record ActionHandler(Flag Data, FlagAction Callback);
 
-    internal record DefaultCallback(DefaultHandler Callback, List<DefaultContext> Contexts);
-    internal record FlagCallback(List<(FlagHandler Callback, List<FlagContext> Contexts)> Callbacks);
+    internal record ActionCallback(List<(ActionHandler Callback, List<ActionContext> Contexts)> Callbacks);
     internal record PropertyCallback(List<(PropertyHandler Callback, List<PropertyContext> Contexts)> Callbacks);
 
 
     internal class CallBinding
     {
-        public DefaultCallback DefaultCallback { get; private set; }
-        public FlagCallback FlagCallback { get; private set; }
+        public ActionCallback FlagCallback { get; private set; }
         public PropertyCallback PropertyCallback { get; private set; }
 
-        private static readonly DefaultAction DefaultAction = (DefaultContext _) => CallbackState.CONTINUE;
 
         public CallBinding()
         {
-            this.DefaultCallback = new DefaultCallback(new DefaultHandler(DefaultAction), new List<DefaultContext>());
-            this.FlagCallback = new FlagCallback(new List<(FlagHandler, List<FlagContext>)>());
+            this.FlagCallback = new ActionCallback(new List<(ActionHandler, List<ActionContext>)>());
             this.PropertyCallback = new PropertyCallback(new List<(PropertyHandler, List<PropertyContext>)>());
         }
 
-        private void SetDefaultCallbackHandler(DefaultHandler callback)
-        {
-            this.DefaultCallback = new DefaultCallback(callback, new List<DefaultContext>());
-        }
-
-        public void AddDefaultCallback(DefaultContext context)
-        {
-            if (this.DefaultCallback.Callback == null)
-            {
-                this.SetDefaultCallbackHandler(new DefaultHandler(DefaultAction));
-            }
-
-            this.DefaultCallback.Contexts.Add(context);
-        }
-
-        public void AddDefaultCallback(DefaultHandler callback, DefaultContext context)
-        {
-            this.SetDefaultCallbackHandler(callback);
-            this.DefaultCallback.Contexts.Add(context);
-        }
-
-        public void AddFlagCallback(FlagHandler callback, FlagContext context)
+        public void AddActionCallback(ActionHandler callback, ActionContext context)
         {
             int index = this.FlagCallback.Callbacks.FindIndex(next => next.Callback == callback);
             if (index is not -1)
@@ -68,10 +42,10 @@ namespace ArgumentParser.Type
                 return;
             }
 
-            this.FlagCallback.Callbacks.Add((callback, new List<FlagContext> { context }));
+            this.FlagCallback.Callbacks.Add((callback, new List<ActionContext> { context }));
         }
 
-        public void AddFlagCallback(FlagHandler callback, List<FlagContext> contexts)
+        public void AddActionCallback(ActionHandler callback, List<ActionContext> contexts)
         {
             int index = this.FlagCallback.Callbacks.FindIndex(next => next.Callback == callback);
             if (index is not -1)

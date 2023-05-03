@@ -2,9 +2,9 @@ namespace ArgumentParser.Context;
 
 using ArgumentParser.Type;
 
-public class FlagContext : DefaultContext
+public class ActionContext : DefaultContext
 {
-    public FlagContext(DefaultContext context) 
+    public ActionContext(DefaultContext context) 
     : base(ref context) { }
 
 }

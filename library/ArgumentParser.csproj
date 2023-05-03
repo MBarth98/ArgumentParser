@@ -19,5 +19,8 @@
     <Content Include="Type\Identifier.cs" />
     <Content Include="Type\Property.cs" />
     <Content Include="Type\Flag.cs" />
+    <Content Include="Type\Group.cs" />
+    <Content Include="Type\Token.cs" />
+    <Content Include="STDExtension.cs" />
   </ItemGroup>
 </Project>

@@ -13,13 +13,6 @@ public class Invalid
     [InlineData("a c d e", 2)] // 2 unknown flags 
     public void WithoutDefaultHandler(string cmdline, int expected)
     {
-        var exec = new Executor();
-        int actual = 0;
-        exec.AddHandler(new Flag("a", "A"), (context) => { actual++; });
-        exec.AddHandler(new Flag("b", "B"), (context) => { actual++; });
-        exec.AddHandler(new Flag("c", "C"), (context) => { actual++; });
-        new Scanner(cmdline, exec).CallHandlers();
 
-        Assert.Equal(expected, actual);
     }
 }

@@ -1,4 +1,5 @@
-﻿using ArgumentParser.Context;
+﻿using System.Linq;
+using ArgumentParser.Context;
 using ArgumentParser.Type;
 using ArgumentParser.Error.Exceptional;
 
@@ -14,200 +15,100 @@ public class Executor
             throw new ExecutorException($"{nameof(Execute)} can only be called once.");
         }
 
-        MergeHandlers();
-
-        InvokeHandlers();
 
         m_hasRun = true;
     }
-    private void InvokeHandlers()
+
+    public void AddHandler(Flag flag, FlagAction action)
     {
-        // call handlers in order of discovery
-        foreach (var handler in Handlers.OrderBy(next => next.Key))
+        this.m_functionBindings.FlagCallback.Callbacks.Add((new ActionHandler(flag, action), new List<ActionContext>()));
+    }
+
+    public void AddHandler(Property property, PropertyAction action)
+    {
+        this.m_functionBindings.PropertyCallback.Callbacks.Add((new PropertyHandler(property, action), new List<PropertyContext>()));
+    }
+
+
+    internal void AddContext(ActionHandler handler, ActionContext context)
+    {
+        try
         {
-            handler.Value.Invoke();
+            this.m_functionBindings.AddActionCallback(handler, context);
         }
-
-    }
-
-    private void MergeHandlers()
-    {
-        foreach (var (handler, contexts) in FlagHandlers)
+        catch (NullReferenceException)
         {
-            if (contexts.Count <= 0) continue;
-
-            foreach (var context in contexts)
-            {
-                Handlers[context.Index] = () => handler.callback.Invoke(context);
-            }
+            throw new ExecutorException($"No flag handler found for selector {handler.Data.Text}");
         }
-
-        foreach (var (handler, contexts) in PropertyHandlers)
-        {
-            if (contexts.Count <= 0) continue;
-            foreach (var keyValue in contexts)
-            {
-                Handlers[keyValue.Index] = () => handler.callback.Invoke(keyValue);
-            }
-        }
-
-        if (DefaultHandler.Callback == null) return;
-
-        foreach (var defaultContext in DefaultHandler.Contexts)
-        {
-            Handlers[defaultContext.Index] = () => DefaultHandler.Callback.Invoke(defaultContext);
-        }
-    }
-
-    public void AddHandler(Flag flag, Action<FlagContext> handler)
-    {
-        var valid = FlagHandlers.All(next =>
-        {
-            foreach (var selector in flag.Selectors())
-            {
-                if (next.handler.flag.Selectors().Contains(selector))
-                {
-                    throw new ExecutorException($"{nameof(AddHandler)}(Flag {nameof(flag)}, Action<> {nameof(handler)}) : selector [{selector}] has already been bound to a callback");
-                }
-
-                m_validSelectors.Add(selector);
-            }
-            return true;
-        });
-
-        if (!valid) throw new ExecutorException($"{nameof(AddHandler)}(Flag {nameof(flag)}, Action<> {nameof(handler)}) : Unknown error");
-
-        FlagHandlers.Add(new FlagHandler(flag, handler));
-    }
-
-    public void AddHandler(Property property, Action<PropertyContext> handler)
-    {
-        var thisKeys = property.Selectors().Append(property.Key());
-        var valid = PropertyHandlers.All(next =>
-        {
-            var nextKeys = next.handler.data.Selectors().Append(next.handler.data.Key()).ToList();
-
-            foreach (var thisKey in thisKeys)
-            {
-                if (nextKeys.Contains(thisKey))
-                {
-                    throw new ExecutorException($"{nameof(AddHandler)}(Property {nameof(property)}, Action<> {nameof(handler)}) : selector [{thisKey}] has already been bound to a callback");
-                }
-
-                m_validSelectors.Add(thisKey);
-            }
-            return true;
-        });
-
-        if (!valid) throw new ExecutorException($"{nameof(AddHandler)}(Property {nameof(property)}, Action<> {nameof(handler)}) : Unknown error");
-
-        PropertyHandlers.Add(new PropertyHandler(property, handler));
-    }
-
-    public void AddHandler(object _, Action<DefaultContext> handler)
-    {
-        DefaultHandler = new DefaultCallback(handler, new List<DefaultContext>());
-    }
-
-
-    public List<string> GetFlagSelectors => 
-        FlagHandlers.SelectMany(next => 
-            next.handler.flag.Selectors()).ToList();
-
-    public List<string> GetPropertySelectors => 
-        PropertyHandlers.SelectMany(next => 
-            next.handler.data.Selectors().Append(next.handler.data.Key())).ToList();
-
-
-    internal void AddContext(FlagHandler handler, FlagContext context)
-    {   
-        FlagHandlers.Add(handler, context);
+        catch { throw; } // catch all other exceptions
     }
 
     internal void AddContext(PropertyHandler handler, PropertyContext context)
     {
-        PropertyHandlers.Add(handler, context);
-    }
-
-    internal void AddContext(string selector, FlagContext context)
-    {
-        if (!HasFlag(selector))
+        try 
         {
-            throw new ExecutorException($"{nameof(AddContext)} : Flag [{selector}] has not been registered, with a callback.");
-        }
-        
-        FlagHandlers.Add(GetFlagHandler(selector), context);
-    }
-
-    internal void AddContext(string selector, PropertyContext context)
-    {
-        if (!HasProperty(selector))
+            this.m_functionBindings.AddPropertyCallback(handler, context);
+        } 
+        catch (NullReferenceException) 
         {
-            throw new ExecutorException($"{nameof(AddContext)} : Property [{selector}] has not been registered, with a callback.");
+            throw new ExecutorException($"No property handler found for selector {handler.Data.Text}");
         }
-        
-        PropertyHandlers.Add(GetPropertyHandler(selector), context);
+        catch { throw; } // catch all other exceptions
     }
-
-    internal void AddContext(DefaultContext context)
-    {
-        DefaultHandler.Contexts.Add(context);
-    }
-
-    internal bool HasDefaultHandler => DefaultHandler.Callback != null;
-    internal bool HasFlagHandler => FlagHandlers.Count > 0;
-    internal bool HasPropertyHandler => PropertyHandlers.Count > 0;
 
 
     internal bool HasAny(string selector)
     {
-        try
+        try 
         {
-            return m_validSelectors.Contains(selector) || m_validSelectors.Any(selector.StartsWith);
-        }
+            return this.HasFlag(selector) || this.HasProperty(selector);
+        } 
         catch { return false; }
-    }
-
-    internal bool IsExact(string selector)
-    {
-        return m_validSelectors.Contains(selector);
     }
 
     internal bool HasFlag(string selector)
     {
-        return m_validSelectors.Contains(selector) &&
-               FlagHandlers.Any(next => 
-                   next.handler.flag.Selectors().Contains(selector));
+        try 
+        {
+            return this.m_functionBindings.FlagCallback.Callbacks.Any((x) => x.Callback.Data.Selectors().Contains(selector));
+        } catch { return false; }
     }
 
     internal bool HasProperty(string selector)
     {
-        return m_validSelectors.Contains(selector) && 
-               PropertyHandlers.Any(next => 
-                   next.handler.data.Selectors().Contains(selector));
+        try 
+        {
+            return this.m_functionBindings.PropertyCallback.Callbacks.Any((x) => x.Callback.Data.Selectors().Contains(selector));
+        } catch { return false; }
     }
 
-    internal FlagHandler GetFlagHandler(string selector)
+    internal ActionHandler GetFlagHandler(string selector)
     {
-        if (!HasFlag(selector))
+        try
         {
-            throw new ExecutorException($"{nameof(GetFlagHandler)} : Flag [{selector}] has not been registered.");
+            return this.m_functionBindings.FlagCallback.Callbacks.Find((x) => x.Callback.Data.Selectors().Contains(selector)).Callback;
+        } 
+        catch (NullReferenceException)
+        {
+            throw new ExecutorException($"No flag handler found for selector {selector}");
         }
-        return FlagHandlers.First(next => next.handler.flag.Selectors().Contains(selector)).handler;
+        catch { throw; } // catch all other exceptions
     }
 
     internal PropertyHandler GetPropertyHandler(string selector)
     {
-        if (!HasProperty(selector))
+        try
         {
-            throw new ExecutorException($"{nameof(GetPropertyHandler)} : Property [{selector}] has not been registered.");
+            return this.m_functionBindings.PropertyCallback.Callbacks.Find((x) => x.Callback.Data.Selectors().Contains(selector)).Callback;
         }
-        return PropertyHandlers.First(next => next.handler.data.Selectors().Contains(selector)).handler;
+        catch (NullReferenceException)
+        {
+            throw new ExecutorException($"No property handler found for selector {selector}");
+        }
+        catch { throw; } // catch all other exceptions
     }
 
     private bool m_hasRun;
 
-    private readonly HashSet<string> m_validSelectors = new(); // optimize lookup
-    private Dictionary<int, Action> Handlers { get; } = new();
     private readonly CallBinding m_functionBindings = new();
 }

@@ -113,18 +113,40 @@ public class Program
              }
 
             //----------------------------------------------------------------------------------------------------
-        */        
-        
-        var arguments = new Scanner(args);
+        */
 
-        var install_fn      = delegate (PropertyContext context) { Console.WriteLine($"install {context.value}"); };
-        var remove_fn       = delegate (PropertyContext context) { Console.WriteLine($"remove {context.value}"); };
-        var remove_all_fn   = delegate (FlagContext context) { Console.WriteLine($"remove all"); };
-        var help_fn         = delegate (FlagContext context) { Console.WriteLine($"help"); };
-        var set_verbose_fn  = delegate (FlagContext context) { Console.WriteLine($"set verbose"); };
+        static CallbackState install_fn(PropertyContext context)
+        {
+            Console.WriteLine($"install {context.value}");
+            return CallbackState.STOP;
+        }
 
-        var tok_install     = new Token(install_fn, "install", 0, "i");
-        var tok_remove      = new Token(remove_fn, "remove", 0, "rm");
+        static CallbackState remove_fn(PropertyContext context)
+        {
+            Console.WriteLine($"remove {context.value}");
+            return CallbackState.STOP;
+        }
+
+        static CallbackState remove_all_fn(ActionContext context)
+        {
+            Console.WriteLine($"remove all");
+            return CallbackState.STOP;
+        }
+
+        static CallbackState help_fn(ActionContext context)
+        {
+            Console.WriteLine($"help");
+            return CallbackState.STOP;
+        }
+
+        static CallbackState set_verbose_fn(ActionContext context)
+        {
+            Console.WriteLine($"set verbose");
+            return CallbackState.CONTINUE;
+        }
+
+        var tok_install     = new Token(install_fn, "install", 0, "i", "install");
+        var tok_remove      = new Token(remove_fn, "remove", 0, "rm", "remove");
         var tok_remove_all  = new Token(remove_all_fn, "all", 1, "all");
         var tok_verbose     = new Token(set_verbose_fn, "verbose",2, "-v");
         var tok_help        = new Token(help_fn, "help", 3, "-h", "?");
@@ -139,65 +161,21 @@ public class Program
 
         var remove = new Group(tok_remove);
         remove.Add(tok_remove_all);
-        install.Add(tok_verbose);
+        remove.Add(tok_verbose);
         remove.Add(tok_help);
 
         root.Add(install);
         root.Add(remove);
 
+        #if DEBUG
+            Console.WriteLine(root.ToDot());
+        #endif
+        
+        var arguments = new Scanner(args, root);
+
+
+        
         arguments.CallHandlers();
     }
 
-    class Token
-    {
-        public string name;
-        public int assosiativity;
-        public List<string> selectors;
-        public Action<dynamic> action;
-
-        private Token(Action<dynamic> action, string name, int assosiativity, params string[] selectors) 
-        {
-            this.name = name;
-            this.assosiativity = assosiativity;
-            this.selectors = new List<string>(selectors);
-            this.action = action;
-        }
-
-        public Token(Action<PropertyContext> action, string name, int assosiativity, params string[] selectors)
-        : this((Action<dynamic>)action, name, assosiativity, selectors) {}
-
-        public Token(Action<FlagContext> action, string name, int assosiativity, params string[] selectors)
-        : this((Action<dynamic>)action, name, assosiativity, selectors) {}
-    }
-
-    class Group
-    {
-        public readonly string name = "";
-        public readonly List<Group> SubGroups = new();
-        public readonly List<Token> Tokens = new();
-
-
-        public Group Add(Group child)
-        {
-            this.SubGroups.Add(child);
-            return child;
-        }
-
-        public Group Add(Token token)
-        {
-            this.Tokens.Add(token);
-            return this;
-        }
-
-        public Group(Token token)
-        {
-            this.name = token.name;
-            this.Tokens.Add(token);
-        }
-
-        public Group()
-        {
-            this.name = "";
-        }
-    }
 }

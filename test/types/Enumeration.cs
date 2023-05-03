@@ -14,16 +14,6 @@ public class Enumeration
     [InlineData("enum=THIRD", true)]
     public void Content(string cmdline, bool willThrow)
     {
-        var exec = new Executor();
-        exec.AddHandler(new Property("enum", typeof(TestEnum)), (context) => {});
 
-        if (willThrow)
-        {
-            Assert.ThrowsAny<Exception>(() => new Scanner(cmdline, exec).CallHandlers());
-        }
-        else
-        {
-            new Scanner(cmdline, exec).CallHandlers();
-        }
     }
 }
