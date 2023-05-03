@@ -19,11 +19,11 @@ public class Enumeration
 
         if (willThrow)
         {
-            Assert.ThrowsAny<Exception>(() => new Scanner(cmdline, exec).ParseAndCommit());
+            Assert.ThrowsAny<Exception>(() => new Scanner(cmdline, exec).CallHandlers());
         }
         else
         {
-            new Scanner(cmdline, exec).ParseAndCommit();
+            new Scanner(cmdline, exec).CallHandlers();
         }
     }
 }

@@ -10,10 +10,14 @@
     <Content Include="Error\Validator\Validator.cs" />
     <Content Include="Context\DefaultContext.cs" />
     <Content Include="Context\FlagContext.cs" />
-    <Content Include="Context\HandlerList.cs" />
     <Content Include="Context\PropertyContext.cs" />
     <Content Include="Type\FlagType.cs" />
-    <Content Include="Type\PropertyType.cs" />
     <Content Include="Type\ValueTypeEnum.cs" />
+    <Content Include="Executor.cs" />
+    <Content Include="Type\SelectorSet.cs" />
+    <Content Include="Type\Callbacks.cs" />
+    <Content Include="Type\Identifier.cs" />
+    <Content Include="Type\Property.cs" />
+    <Content Include="Type\Flag.cs" />
   </ItemGroup>
 </Project>

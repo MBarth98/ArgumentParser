@@ -20,6 +20,6 @@ public class CSV
         var cmd = new Scanner(cmdline, exec);
 
 
-        cmd.ParseAndCommit();
+        cmd.CallHandlers();
     }
 }

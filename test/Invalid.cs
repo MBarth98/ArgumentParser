@@ -18,7 +18,7 @@ public class Invalid
         exec.AddHandler(new Flag("a", "A"), (context) => { actual++; });
         exec.AddHandler(new Flag("b", "B"), (context) => { actual++; });
         exec.AddHandler(new Flag("c", "C"), (context) => { actual++; });
-        new Scanner(cmdline, exec).ParseAndCommit();
+        new Scanner(cmdline, exec).CallHandlers();
 
         Assert.Equal(expected, actual);
     }

@@ -1,51 +1,13 @@
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System;
-using ArgumentParser.Error;
 using ArgumentParser.Error.Validator;
 
 namespace ArgumentParser.Type;
 
-
-public class Property
+public class Property : Identifier
 {
-    public Property(string selector, string name = "", VALUE_TYPE_ENUM type = VALUE_TYPE_ENUM.STRING, string @default = "", string? delimiter = "=")
+    public Property(SelectorSet selectors, string name)
     {
-        this.AddSelector(selector);
-        this.m_property_name = string.IsNullOrWhiteSpace(name) ? selector : name;
-        this.m_property_type = type;
-        this.m_property_value = @default;
-        this.m_delimiter = delimiter;
-    }
-
-    public Property(string selector, string? delimiter)
-    {
-        this.AddSelector(selector);
-        this.m_property_name = selector;
-        this.m_property_type = VALUE_TYPE_ENUM.STRING;
-        this.m_property_value = "";
-        this.m_delimiter = delimiter;
-    }
-
-    public Property(string selector, System.Type @enum, string @default = "", string? delimiter = "=")
-    {
-        this.AddSelector(selector);
-        this.m_property_name = selector;
-        this.m_property_type = VALUE_TYPE_ENUM.ENUMERATION;
-        this.m_delimiter = delimiter;
-
-        if (@enum == null)
-        {
-            throw new Exception("Invalid type expected enum", new ArgumentException(nameof(@enum)));
-        }
-
-        if (string.IsNullOrWhiteSpace(@default) || @enum.GetEnumNames().Contains(@default) == false)
-        {
-            this.m_property_value = @enum.GetEnumNames()[0];
-        }
-        this.m_property_value_enum = @enum;
-
-        this.Value(this.m_property_value);
+        this.m_property_name = name;
+        this.m_selectors = selectors;
     }
 
     /// <summary>
@@ -110,7 +72,7 @@ public class Property
     {
         if (valueType == VALUE_TYPE_ENUM.ENUMERATION)
         {
-            throw new Exception("Use SetValueType(Enum @enum) instead", new ArgumentException(nameof(valueType)));
+            throw new ArgumentException("Use SetValueType(Enum @enum) instead", nameof(valueType));
         }
 
         this.m_property_type = valueType;
@@ -152,6 +114,7 @@ public class Property
         this.Value(@default);
     }
 
+
     internal void Value(string value)
     {
         object[] args;
@@ -159,7 +122,7 @@ public class Property
         {
             if (EnumType() == null)
             {
-                throw new Exception("Invalid enum type", new ArgumentException(nameof(m_property_value_enum)));
+                throw new InvalidOperationException("EnumType is null");
             }
 
             args = new object[] { value , EnumType().GetEnumNames() };
@@ -171,7 +134,7 @@ public class Property
 
         if (!this.m_validator.Validate(this.m_property_type, args))
         {
-            throw new Exception("Invalid value", new ArgumentException(nameof(value)));
+            throw new ArgumentException("Could not use value as an enum", nameof(value));
         }
 
         this.m_property_value = value;
@@ -185,7 +148,7 @@ public class Property
     internal bool AllowMultiple() => this.m_allowMultiple;
     internal VALUE_TYPE_ENUM ValueType() => this.m_property_type;
     internal System.Type EnumType() => this.m_property_value_enum;
-    internal string Key() => this.m_selectors[0];
+    internal string Key() => this.m_property_name;
     internal string Name() => this.m_property_name;
     internal string Description() => this.m_description;
     internal string? Delimiter() => this.m_delimiter;
@@ -230,7 +193,7 @@ public class Property
     /// <summary>
     /// unique name of the option
     /// </summary>
-    private string m_property_name;
+    private readonly string m_property_name;
 
     /// <summary>
     /// description of the option
@@ -243,14 +206,15 @@ public class Property
     /// <remarks>
     /// if null, the key must be followed by the value with any number of whitespace characters
     /// </remarks>
-    private string? m_delimiter = null;
+    private readonly string? m_delimiter = null;
 
     /// <summary>
     /// value of the key (if any)
     /// </summary>
     private string m_property_value = "";
 
-    private readonly List<string> m_selectors = new();
+    private readonly SelectorSet m_selectors = new();
 
     private readonly ValidatorImpl m_validator = new(new DefaultValidators());
+
 }

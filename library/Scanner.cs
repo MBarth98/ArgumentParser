@@ -1,25 +1,21 @@
-namespace ArgumentParser;
-
 using ArgumentParser.Context;
-using ArgumentParser.Type;
+
+namespace ArgumentParser;
 
 public class Scanner
 {
-    public Executor Executor { get; }
-
-
-    public Scanner(string @string, Executor executor) : 
-        this(@string.Split(' '), executor) {}
-
+    public Scanner(string @string) : this(@string, new Executor()) { }
+    public Scanner(string @string, Executor executor) : this(@string.Split(' '), executor) {}
+    public Scanner(IEnumerable<string> args) : this(args, new Executor()) { }
     public Scanner(IEnumerable<string> args, Executor executor)
     {
         this.m_args = new List<string>(args);
-        this.Executor = executor;
+        this.m_executor = executor;
     }
 
-    public void ParseAndCommit()
+    public void CallHandlers()
     {
-        this.Parse().Commit();
+        this.Parse().Execute();
     }
 
     private Executor Parse()
@@ -36,63 +32,62 @@ public class Scanner
 
             var defaultContext = new DefaultContext(m_argument_count, current);
 
-            if (Executor.HasAny(current))
+            if (m_executor.HasAny(current))
             {
-                if (Executor.IsExact(current))
+                if (m_executor.IsExact(current))
                 {
-                    if (Executor.HasFlag(current))
+                    if (m_executor.HasFlag(current))
                     {
                         // can only be a flag
-                        Executor.AddContext(current, new FlagContext(defaultContext));
+                        m_executor.AddContext(current, new FlagContext(defaultContext));
                         m_argument_count++;
                     }
-                    else if (Executor.HasProperty(current))
+                    else if (m_executor.HasProperty(current))
                     {
                         // can only be a property (with null or space as delimiter)
-                        var property = Executor.GetPropertyHandler(current);
-                        var values = current.Split(property?.data.Delimiter() ?? string.Empty).ToList();
+                        var property = m_executor.GetPropertyHandler(current);
+                        var values = current.Split(property?.Data.Delimiter() ?? string.Empty).ToList();
                         if (values.Count == 1 && i <= m_args.Count - 1)
                         {
                             values.Add(m_args[++i]);
                         }
 
                         var pair = new KeyValuePair<string, string>(values[0], values[1]);
-                        property?.data.Value(pair.Value);
-                        Executor.AddContext(property, new PropertyContext(defaultContext, pair.Key, pair.Value));
+                        property?.Data.Value(pair.Value);
+                        m_executor.AddContext(property, new PropertyContext(defaultContext, pair.Key, pair.Value));
                         m_argument_count++;
                     }
                 }
-                else if (Executor.HasProperty(current))
+                else if (m_executor.HasProperty(current))
                 {
                     // can only be a property (with immediate delimiter)
-                    var property = Executor.GetPropertyHandler(current);
-                    var values = current.Split(property?.data.Delimiter() ?? string.Empty).ToList();
+                    var property = m_executor.GetPropertyHandler(current);
+                    var values = current.Split(property?.Data.Delimiter() ?? string.Empty).ToList();
                     if (values.Count == 1 && i <= m_args.Count - 1)
                     {
                         values.Add(m_args[++i]);
                     }
 
                     var pair = new KeyValuePair<string, string>(values[0], values[1]);
-                    property?.data.Value(pair.Value);
-                    Executor.AddContext(property, new PropertyContext(defaultContext, pair.Key, pair.Value));
+                    property?.Data.Value(pair.Value);
+                    m_executor.AddContext(property, new PropertyContext(defaultContext, pair.Key, pair.Value));
                     m_argument_count++;
                 }
             }
             else
             {
                 // does not match any flag or property
-                Executor.AddContext(defaultContext);
+                m_executor.AddContext(defaultContext);
                 m_argument_count++;
             }
 
         }
         
-        return this.Executor;
+        return this.m_executor;
     }
 
-
-    private int m_argument_count = 0;
     private readonly List<string> m_args;
-
+    private readonly Executor m_executor;
+    private int m_argument_count = 0;
 }
 

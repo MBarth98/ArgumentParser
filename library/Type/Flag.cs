@@ -1,6 +1,7 @@
+
 namespace ArgumentParser.Type;
 
-public class Flag
+public class Flag : Identifier
 {
     public Flag(string selector, string name)
     {
@@ -43,7 +44,7 @@ public class Flag
         return this.m_selectors.ToArray();
     }
 
-    private List<string> m_selectors = new();
+    private readonly List<string> m_selectors = new();
     private string m_flag_description = "";
     private string m_flag_name = "";
 }

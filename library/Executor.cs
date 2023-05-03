@@ -7,11 +7,11 @@ namespace ArgumentParser;
 
 public class Executor
 {
-    public void Commit()
+    public void Execute()
     {
         if (m_hasRun)
         {
-            throw new ExecutorException($"{nameof(Commit)} can only be called once.");
+            throw new ExecutorException($"{nameof(Execute)} can only be called once.");
         }
 
         MergeHandlers();
@@ -209,8 +209,5 @@ public class Executor
 
     private readonly HashSet<string> m_validSelectors = new(); // optimize lookup
     private Dictionary<int, Action> Handlers { get; } = new();
-    private FlagHandlerList FlagHandlers { get; } = new();
-    private PropertyHandlerList PropertyHandlers { get; } = new();
-    internal record DefaultCallback(Action<DefaultContext>? Callback, List<DefaultContext> Contexts);
-    private DefaultCallback DefaultHandler { get; set; } = new(null, new List<DefaultContext>());
+    private readonly CallBinding m_functionBindings = new();
 }

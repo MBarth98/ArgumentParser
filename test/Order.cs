@@ -13,7 +13,7 @@ public class Order
         exec.AddHandler(new Flag("c", "C"), (context) => { order.Add("c"); });
         exec.AddHandler(new Flag("d", "D"), (context) => { order.Add("d"); });
 
-        new Scanner("a b c d", exec).ParseAndCommit();
+        new Scanner("a b c d", exec).CallHandlers();
         Assert.Equal(new List<string> { "a", "b", "c", "d" }, order);
     }
 

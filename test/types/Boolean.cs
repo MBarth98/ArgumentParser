@@ -19,7 +19,7 @@ public class Boolean
             Assert.Equal(expected, bool.Parse(context.value));
         });
 
-        new Scanner(cmdline, exec).ParseAndCommit();
+        new Scanner(cmdline, exec).CallHandlers();
     }
 
     #if EXPERIMENTAL
