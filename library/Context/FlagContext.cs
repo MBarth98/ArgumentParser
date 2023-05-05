@@ -1,10 +1,8 @@
 namespace ArgumentParser.Context;
 
-using ArgumentParser.Type;
-
-public class ActionContext : DefaultContext
+public sealed class ActionContext : Context
 {
-    public ActionContext(DefaultContext context) 
+    public ActionContext(Context context) 
     : base(ref context) { }
 
 }

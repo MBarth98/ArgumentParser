@@ -49,17 +49,6 @@ public class Program
 
             //---------------------------------------------------------------------------------------------------- 
 
-             act_help        = new Action(help_fn, { "-h", "--help", "?" }, "help", ASSOC.LEFT)
-             act_remove_all  = new Action(remove_all_fn, {"-a", "--all"}, "all", ASSOC.LEFT)
-
-                * default assoc is ASSOC.BOTH
-
-             act_verbose     = new Action(set_verbose_fn, {"-v", "--verbose"}, "verbose", ASSOC.BOTH)
-             act_remove      = new Property(remove_fn, {"remove", "rm"}, "remove")
-             act_install     = new Property(install_fn, {"install", "i"}, "install")
-
-            //---------------------------------------------------------------------------------------------------- 
-
              help                    // act_help
              install                 // act_install 
              install.help            // act_help
@@ -86,31 +75,6 @@ public class Program
 
              ?> program.exe 
                  => "" => call default => call help_fn => show help for program 
-
-            //----------------------------------------------------------------------------------------------------
-
-             cmd.register(
-                act_help,
-                act_remove_all,
-                act_verbose,
-                act_remove,
-                act_install
-             );
-
-             cmd.Paths = {
-                "" => act_help,
-                "install" => act_install,
-             }
-
-             cmd.Arguments = {
-                 new Flag(help_fn, "-h", "help"),
-                 new Property(install_fn, "install"),
-                 new Property(remove_fn, "remove"),
-                 new Scope("parameter") {
-                     remove_all,
-                     new Flag(help_fn, "-h", "help"),
-                 }
-             }
 
             //----------------------------------------------------------------------------------------------------
         */
@@ -145,11 +109,11 @@ public class Program
             return CallbackState.CONTINUE;
         }
 
-        var tok_install     = new Token(install_fn, "install", 0, "i", "install");
-        var tok_remove      = new Token(remove_fn, "remove", 0, "rm", "remove");
-        var tok_remove_all  = new Token(remove_all_fn, "all", 1, "all");
-        var tok_verbose     = new Token(set_verbose_fn, "verbose",2, "-v");
-        var tok_help        = new Token(help_fn, "help", 3, "-h", "?");
+        var tok_install     = new Token(install_fn, new PropertyValue("install", 0, "i", "install"));
+        var tok_remove      = new Token(remove_fn, new PropertyValue("remove", 0, "rm", "remove"));
+        var tok_remove_all  = new Token(remove_all_fn, new ActionValue("all", 1, "all"));
+        var tok_verbose     = new Token(set_verbose_fn, new ActionValue("verbose",2, "-v"));
+        var tok_help        = new Token(help_fn, new ActionValue("help", 3, "-h", "?"));
 
         var root = new Group();
 
@@ -170,10 +134,8 @@ public class Program
         #if DEBUG
             Console.WriteLine(root.ToDot());
         #endif
-        
+
         var arguments = new Scanner(args, root);
-
-
         
         arguments.CallHandlers();
     }

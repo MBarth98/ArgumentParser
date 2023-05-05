@@ -2,9 +2,9 @@ using ArgumentParser.Error.Exceptional;
 
 namespace ArgumentParser.Context;
 
-public class DefaultContext
+public abstract class Context
 {
-    public DefaultContext(int index, string text)
+    public Context(int index, string text)
     {
         this.Index = index;
         this.Text = text;
@@ -14,7 +14,7 @@ public class DefaultContext
     /// copy constructor
     /// </summary>
     /// <param name="context">another instance</param>
-    public DefaultContext(ref DefaultContext context)
+    public Context(ref Context context)
     {
         this.Index = context.Index;
         this.Text = context.Text;

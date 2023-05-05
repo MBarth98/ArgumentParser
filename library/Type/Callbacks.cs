@@ -11,11 +11,11 @@ namespace ArgumentParser.Type
     }
 
     
-    public delegate CallbackState PropertyAction(PropertyContext context);
-    public delegate CallbackState FlagAction(ActionContext context);
+    public delegate CallbackState PropertyFunction(PropertyContext context);
+    public delegate CallbackState ActionFunction(ActionContext context);
 
-    public record PropertyHandler(Property Data, PropertyAction Callback);
-    public record ActionHandler(Flag Data, FlagAction Callback);
+    public record PropertyHandler(PropertyValue Data, PropertyFunction Callback);
+    public record ActionHandler(ActionValue Data, ActionFunction Callback);
 
     internal record ActionCallback(List<(ActionHandler Callback, List<ActionContext> Contexts)> Callbacks);
     internal record PropertyCallback(List<(PropertyHandler Callback, List<PropertyContext> Contexts)> Callbacks);

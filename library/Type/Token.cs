@@ -11,25 +11,23 @@ namespace ArgumentParser.Type
         }
 
         public string name;
-        public int assosiativity;
-        public List<string> selectors;
+
         internal Type type;
         public dynamic action;
+        public dynamic value;
 
-        public Token(PropertyAction action, string name, int assosiativity, params string[] selectors) 
+        public Token(PropertyFunction action, PropertyValue property) 
         {
-            this.name = name;
-            this.assosiativity = assosiativity;
-            this.selectors = new List<string>(selectors);
+            this.name = property.Name();
+            this.value = property;
             this.action = action;
             this.type = Type.PROPERTY;
         }
 
-        public Token(FlagAction action, string name, int assosiativity, params string[] selectors)
+        public Token(ActionFunction action, ActionValue flag)
         {
-            this.name = name;
-            this.assosiativity = assosiativity;
-            this.selectors = new List<string>(selectors);
+            this.name = flag.Name();
+            this.value = flag;
             this.action = action;
             this.type = Type.ACTION;
         }

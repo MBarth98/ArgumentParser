@@ -6,7 +6,7 @@ using ArgumentParser.Error.Exceptional;
 namespace ArgumentParser;
 
 
-public class Executor
+public sealed class Executor
 {
     public void Execute()
     {
@@ -19,12 +19,12 @@ public class Executor
         m_hasRun = true;
     }
 
-    public void AddHandler(Flag flag, FlagAction action)
+    public void AddHandler(ActionValue flag, ActionFunction action)
     {
         this.m_functionBindings.FlagCallback.Callbacks.Add((new ActionHandler(flag, action), new List<ActionContext>()));
     }
 
-    public void AddHandler(Property property, PropertyAction action)
+    public void AddHandler(PropertyValue property, PropertyFunction action)
     {
         this.m_functionBindings.PropertyCallback.Callbacks.Add((new PropertyHandler(property, action), new List<PropertyContext>()));
     }

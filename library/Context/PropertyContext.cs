@@ -1,8 +1,8 @@
 namespace ArgumentParser.Context;
 
-public class PropertyContext : DefaultContext
+public sealed class PropertyContext : Context
 {
-    public PropertyContext(DefaultContext context, string key, string value) 
+    public PropertyContext(Context context, string key, string value) 
     : base(ref context)
     {
         this.key = key;

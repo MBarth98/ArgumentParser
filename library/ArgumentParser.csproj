@@ -22,5 +22,9 @@
     <Content Include="Type\Group.cs" />
     <Content Include="Type\Token.cs" />
     <Content Include="STDExtension.cs" />
+    <Content Include="Type\Parameter.cs" />
+    <Content Include="Error\Validator\DefaultValidators.cs" />
+    <Content Include="Context\Context.cs" />
+    <Content Include="Type\ActionValue.cs" />
   </ItemGroup>
 </Project>

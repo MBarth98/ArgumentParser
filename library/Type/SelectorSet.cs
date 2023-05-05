@@ -2,7 +2,7 @@ using System.Collections;
 
 namespace ArgumentParser.Type
 {
-    public class SelectorSet : IEnumerable<string>
+    public sealed class SelectorSet : IEnumerable<string>
     {
         public SelectorSet()
         {
