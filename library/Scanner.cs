@@ -7,70 +7,85 @@ namespace ArgumentParser;
 public sealed class Scanner
 {
     public Scanner(string @string, Group group) : this(@string, new Executor(), group) { }
-    public Scanner(string @string, Executor executor, Group group) : this(@string.Split(' '), executor, group) {}
+    public Scanner(string @string, Executor executor, Group group) : this(@string.Split(' '), executor, group) { }
     public Scanner(IEnumerable<string> args, Group group) : this(args, new Executor(), group) { }
     public Scanner(IEnumerable<string> args, Executor executor, Group group)
+    : this(group)
     {
-        this.m_args = new List<string>(args);
-        this.m_executor = executor;
-        this.m_group = group;
+        m_args = new List<string>(args);
+        m_executor = executor;
+    }
+
+    private Scanner(Group group) 
+    {
+        m_args = new List<string>();
+        m_executor = new Executor();
+        
+        if (string.IsNullOrWhiteSpace(group.name))
+        {
+            m_group = group;
+            RegisterTokenGroup("root", m_group);
+            return;
+        }
+
+        m_group = new Group();
+        m_group.Add(group);
+
+        RegisterTokenGroup("root", m_group);
     }
 
     public void CallHandlers()
     {
-        this.Parse().Execute();
-    }
-
-    private void RegisterHandlers()
-    {
-        this.m_tokens = this.ParseGroups("root", this.m_group);
-        
-        foreach (Token token in this.m_tokens.Values)
-        {
-            switch (token.type)
-            {
-                case Token.Type.ACTION:
-                    this.m_executor.AddHandler((Type.ActionValue)token.value, token.action);
-                    break;
-                case Token.Type.PROPERTY:
-                    this.m_executor.AddHandler((PropertyValue)token.value, token.action);
-                    break;
-            }
-        }
-        Console.WriteLine(m_tokens.Aggregate("", (acc, token) => $"{acc}\n{token.Key} => {token.Value.name}"));
+        Parse().Execute();
     }
 
     private Executor Parse()
     {
-        this.RegisterHandlers();
-        return this.m_executor;
+        ParseParameters();
+        return m_executor;
     }
 
-    private Dictionary<string, Token> ParseGroups(string parent, Group group)
+    private void ParseParameters()
     {
-        var dict = new Dictionary<string, Token>();
+        for (int i = 0; i < m_args.Count; i++)
+        {
+            
+        }
+    }
 
+
+    private void RegisterTokenGroup(string parent, Group group)
+    {
         foreach (var token in group.Tokens)
         {
             if (!parent.EndsWith(token.name))
             {
-                dict.Add($"{parent}.{token.name}", token);
+                RegisterToken(token);
             }
         }
 
         foreach (var subGroup in group.SubGroups)
         {
-            dict.Add($"{parent}.{subGroup.name}", subGroup.Tokens[0]);
-            dict = dict.Concat(this.ParseGroups($"{parent}.{subGroup.name}", subGroup)).ToDictionary(k => k.Key, v => v.Value);
+            RegisterTokenGroup($"{parent}.{subGroup.name}", subGroup);
         }
+    }
 
-        return dict;
+    private void RegisterToken(Token token)
+    {
+        switch (token.type)
+        {
+            case Token.Type.ACTION:
+                m_executor.AddHandler((ActionValue)token.value, token.action);
+                break;
+            case Token.Type.PROPERTY:
+                m_executor.AddHandler((PropertyValue)token.value, token.action);
+                break;
+        }
     }
 
     private readonly List<Token> m_foundTokens = new();
     private readonly List<string> m_args;
     private readonly Executor m_executor;
     private readonly Group m_group;
-    private Dictionary<string, Token> m_tokens = new();
 }
 

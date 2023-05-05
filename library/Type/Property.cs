@@ -12,28 +12,19 @@ public sealed class PropertyValue : Parameter
     /// make the key and value case sensitive (default: false)
     /// </summary>
     /// <param name="isCaseSensitive">default: false</param>
-    public void CaseSensitive(bool isCaseSensitive = false)
-    {
-        this.m_isCaseSensitive = isCaseSensitive;
-    }
+    public void CaseSensitive(bool isCaseSensitive = false) => m_isCaseSensitive = isCaseSensitive;
 
     /// <summary>
     /// make the value optional (default: false)
     /// </summary>
     /// <param name="allowEmpty">default: false</param>
-    public void AllowEmpty(bool allowEmpty = false)
-    {
-        this.m_allowEmpty = allowEmpty;
-    }
+    public void AllowEmpty(bool allowEmpty = false) => m_allowEmpty = allowEmpty;
 
     /// <summary>
     /// allow whitespace in the value (default: true)
     /// </summary>
     /// <param name="allowWhiteSpace">default: true</param>
-    public void AllowWhiteSpace(bool allowWhiteSpace = true)
-    {
-        this.m_allowWhiteSpace = allowWhiteSpace;
-    }
+    public void AllowWhiteSpace(bool allowWhiteSpace = true) => m_allowWhiteSpace = allowWhiteSpace;
 
     /// <summary>
     /// set the expected data type of the value (default: string)
@@ -46,7 +37,7 @@ public sealed class PropertyValue : Parameter
             throw new ArgumentException("Use SetValueType(Enum @enum) instead", nameof(valueType));
         }
 
-        this.m_property_type = valueType;
+        m_property_type = valueType;
     }
 
     /// <summary>
@@ -56,44 +47,36 @@ public sealed class PropertyValue : Parameter
     /// <param name="type">constant: enum</param>
     public void ValueType(System.Type @enum)
     {
-        this.m_property_type = VALUE_TYPE_ENUM.ENUMERATION;
-        this.m_property_value_enum = (dynamic) @enum;
+        m_property_type = VALUE_TYPE_ENUM.ENUMERATION;
+        m_property_value_enum = @enum as dynamic;
     }
 
-    public void Validator(Func<string, bool> validator)
-    {
-        this.m_validator.Set(this.m_property_type, validator);
-    }
+    public void Validator(Func<string, bool> validator) => m_validator.Set(this.m_property_type, validator);
 
-    public void Validator(Func<string, string[], bool> validator)
-    {
-        this.m_validator.Set(this.m_property_type, validator);
-    }
+    public void Validator(Func<string, string[], bool> validator) => m_validator.Set(m_property_type, validator);
 
-    public void Default(string @default)
-    {
-        this.Value(@default);
-    }
+    public void Default(string @default) => Value(@default);
 
 
     internal void Value(string value)
     {
         object[] args;
-        if (this.m_property_type == VALUE_TYPE_ENUM.ENUMERATION)
+
+        if (m_property_type == VALUE_TYPE_ENUM.ENUMERATION)
         {
             if (EnumType() == null)
             {
                 throw new InvalidOperationException("EnumType is null");
             }
 
-            args = new object[] { value , EnumType().GetEnumNames() };
-        } 
+            args = new object[] { value, EnumType().GetEnumNames() };
+        }
         else
         {
             args = new object[] { value };
         }
 
-        if (!this.m_validator.Validate(this.m_property_type, args))
+        if (!m_validator.Validate(this.m_property_type, args))
         {
             throw new ArgumentException("Could not use value as an enum", nameof(value));
         }
@@ -149,5 +132,4 @@ public sealed class PropertyValue : Parameter
     private string m_property_value = "";
 
     private readonly ValidatorImpl m_validator = new(new DefaultValidators());
-
 }

@@ -11,25 +11,24 @@ namespace ArgumentParser.Type
         }
 
         public string name;
-
-        internal Type type;
-        public dynamic action;
         public dynamic value;
+        public dynamic action;
+        internal Type type;
 
         public Token(PropertyFunction action, PropertyValue property) 
         {
-            this.name = property.Name();
-            this.value = property;
+            name = property.Name();
+            value = property;
+            type = Type.PROPERTY;
             this.action = action;
-            this.type = Type.PROPERTY;
         }
 
         public Token(ActionFunction action, ActionValue flag)
         {
-            this.name = flag.Name();
-            this.value = flag;
+            name = flag.Name();
+            value = flag;
+            type = Type.ACTION;
             this.action = action;
-            this.type = Type.ACTION;
         }
     }
 }

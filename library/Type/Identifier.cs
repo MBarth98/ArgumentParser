@@ -7,16 +7,8 @@ namespace ArgumentParser.Type
 {
     public class Identifier
     {
-        public string Text
-        {
-            get => this.text;
-            set => this.text = value;
-        }
+        public string Text { get; set; } = "";
 
-        public Guid GUID => this.m_guid;
-
-        private string text = "";
-        
-        private readonly Guid m_guid = Guid.NewGuid();
+        public Guid GUID { get; } = Guid.NewGuid();
     }
 }

@@ -15,18 +15,17 @@ public sealed class Executor
             throw new ExecutorException($"{nameof(Execute)} can only be called once.");
         }
 
-
         m_hasRun = true;
     }
 
     public void AddHandler(ActionValue flag, ActionFunction action)
     {
-        this.m_functionBindings.FlagCallback.Callbacks.Add((new ActionHandler(flag, action), new List<ActionContext>()));
+        m_functionBindings.Actions.Callbacks.Add((new ActionHandler(flag, action), new List<ActionContext>()));
     }
 
     public void AddHandler(PropertyValue property, PropertyFunction action)
     {
-        this.m_functionBindings.PropertyCallback.Callbacks.Add((new PropertyHandler(property, action), new List<PropertyContext>()));
+        m_functionBindings.Properties.Callbacks.Add((new PropertyHandler(property, action), new List<PropertyContext>()));
     }
 
 
@@ -34,7 +33,7 @@ public sealed class Executor
     {
         try
         {
-            this.m_functionBindings.AddActionCallback(handler, context);
+            m_functionBindings.AddActionCallback(handler, context);
         }
         catch (NullReferenceException)
         {
@@ -47,7 +46,7 @@ public sealed class Executor
     {
         try 
         {
-            this.m_functionBindings.AddPropertyCallback(handler, context);
+            m_functionBindings.AddPropertyCallback(handler, context);
         } 
         catch (NullReferenceException) 
         {
@@ -57,53 +56,61 @@ public sealed class Executor
     }
 
 
-    internal bool HasAny(string selector)
+    internal bool HasAny(string input)
     {
         try 
         {
-            return this.HasFlag(selector) || this.HasProperty(selector);
+            return HasAction(input) || HasProperty(input);
         } 
         catch { return false; }
     }
 
-    internal bool HasFlag(string selector)
+    internal bool HasAction(string input)
     {
         try 
         {
-            return this.m_functionBindings.FlagCallback.Callbacks.Any((x) => x.Callback.Data.Selectors().Contains(selector));
+            return m_functionBindings.Actions.Callbacks.Any((x) => x.Callback.Data.Selectors().Contains(input));
         } catch { return false; }
     }
 
-    internal bool HasProperty(string selector)
+    internal bool MayHaveProperty(string input)
     {
         try 
         {
-            return this.m_functionBindings.PropertyCallback.Callbacks.Any((x) => x.Callback.Data.Selectors().Contains(selector));
+            return m_functionBindings.Properties.Callbacks.Any((x) => x.Callback.Data.Selectors().Any((y) => y.StartsWith(input)));
         } catch { return false; }
     }
 
-    internal ActionHandler GetFlagHandler(string selector)
+    internal bool HasProperty(string input)
+    {
+        try 
+        {
+            return m_functionBindings.Properties.Callbacks.Any((x) => x.Callback.Data.Selectors().Contains(input));
+        } catch { return false; }
+    }
+
+    internal ActionHandler GetActionHandler(string input)
     {
         try
         {
-            return this.m_functionBindings.FlagCallback.Callbacks.Find((x) => x.Callback.Data.Selectors().Contains(selector)).Callback;
+            return m_functionBindings.Actions.Callbacks.Find((x) => x.Callback.Data.Selectors().Contains(input)).Callback;
         } 
         catch (NullReferenceException)
         {
-            throw new ExecutorException($"No flag handler found for selector {selector}");
+            throw new ExecutorException($"No flag handler found for selector {input}");
         }
         catch { throw; } // catch all other exceptions
     }
 
-    internal PropertyHandler GetPropertyHandler(string selector)
+    internal PropertyHandler GetPropertyHandler(string input)
     {
         try
         {
-            return this.m_functionBindings.PropertyCallback.Callbacks.Find((x) => x.Callback.Data.Selectors().Contains(selector)).Callback;
+            return m_functionBindings.Properties.Callbacks.Find((x) => x.Callback.Data.Selectors().Contains(input)).Callback;
         }
         catch (NullReferenceException)
         {
-            throw new ExecutorException($"No property handler found for selector {selector}");
+            throw new ExecutorException($"No property handler found for selector {input}");
         }
         catch { throw; } // catch all other exceptions
     }

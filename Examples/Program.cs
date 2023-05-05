@@ -131,9 +131,7 @@ public class Program
         root.Add(install);
         root.Add(remove);
 
-        #if DEBUG
-            Console.WriteLine(root.ToDot());
-        #endif
+        Console.WriteLine(root.ToDot());
 
         var arguments = new Scanner(args, root);
         

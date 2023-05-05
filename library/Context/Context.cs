@@ -6,8 +6,8 @@ public abstract class Context
 {
     public Context(int index, string text)
     {
-        this.Index = index;
-        this.Text = text;
+        Index = index;
+        Text = text;
     }
 
     /// <summary>
@@ -16,8 +16,8 @@ public abstract class Context
     /// <param name="context">another instance</param>
     public Context(ref Context context)
     {
-        this.Index = context.Index;
-        this.Text = context.Text;
+        Index = context.Index;
+        Text = context.Text;
     }
 
     /// <summary>

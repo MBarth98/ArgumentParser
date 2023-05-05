@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 
 namespace ArgumentParser.Type
@@ -11,31 +12,31 @@ namespace ArgumentParser.Type
 
         public Group Add(Group child)
         {
-            this.SubGroups.Add(child);
+            SubGroups.Add(child);
             return child;
         }
 
         public Group Add(Token token)
         {
-            this.Tokens.Add(token);
+            Tokens.Add(token);
             return this;
         }
 
         public Group(Token token)
         {
-            this.name = token.name;
-            this.Tokens.Add(token);
+            name = token.name;
+            Tokens.Add(token);
         }
 
         public Group()
         {
-            this.name = "";
+            name = "";
         }
 
-        #if DEBUG
         public string ToDot(bool root = true)
         {
             var builder = new StringBuilder();
+            #if DEBUG
 
             if (root)
             {
@@ -52,7 +53,9 @@ namespace ArgumentParser.Type
                 builder.AppendLine($"{token.name} [color={color} label=\"{token.name}\"];");
                 
                 if (id == token.name)
+                {
                     continue;
+                }
 
                 builder.AppendLine($"{id} -- {token.name};");
             }
@@ -64,10 +67,14 @@ namespace ArgumentParser.Type
             }
 
             if (root)
+            {
                 builder.Append('}');
+            }
 
+            #else
+            builder.AppendLine("dot graph output is not enabled in release builds.");
+            #endif
             return builder.ToString();
         }
     }
-    #endif
 }
