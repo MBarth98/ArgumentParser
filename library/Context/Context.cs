@@ -1,12 +1,16 @@
 using ArgumentParser.Error.Exceptional;
+using ArgumentParser.Type;
 
 namespace ArgumentParser.Context;
 
-public abstract class Context
+public abstract class BaseContext
 {
-    public Context(int index, string text)
+    private static int m_index = 0;
+
+    public BaseContext(string text, Option option)
     {
-        Index = index;
+        this.Option = option;
+        Index = m_index++;
         Text = text;
     }
 
@@ -14,11 +18,14 @@ public abstract class Context
     /// copy constructor
     /// </summary>
     /// <param name="context">another instance</param>
-    public Context(ref Context context)
+    public BaseContext(ref BaseContext context)
     {
+        Option = context.Option;
         Index = context.Index;
         Text = context.Text;
     }
+
+    public readonly Option Option;
 
     /// <summary>
     /// the index of the argument relative to other parsed arguments

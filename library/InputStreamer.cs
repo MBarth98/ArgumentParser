@@ -4,6 +4,8 @@ public class InputStreamer
 {
     private readonly string m_original;
     private string m_current;
+    private int m_savedIndex = 0;
+    private int m_consumed = 0;
 
     public InputStreamer(string input)
     {
@@ -11,6 +13,24 @@ public class InputStreamer
         m_current = input;
     }
 
+    public void Save()
+    {
+        m_savedIndex = m_consumed;
+    }
+
+    public void Restore()
+    {
+        m_consumed = 0;
+        Next(m_savedIndex);
+    }
+
+    private void Move(int length)
+    {
+        m_consumed += length;
+    }
+
+    public int ReadIndex => m_consumed;
+    
     public void Reset()
     {
         m_current = m_original;
@@ -21,68 +41,72 @@ public class InputStreamer
         return m_current.Length > 0;
     }
 
-    public Optional<char> Peek()
+    public Box<char> Peek()
     {
         if (HasNext())
         {
             return m_current[0];
         }
 
-        return Optional.None();
+        return Box.None();
     }
 
-    public Optional<char> Peek(int index)
+    public Box<char> Peek(int index)
     {
         if (HasNext() && m_current.Length > index)
         {
             return m_current[index];
         }
 
-        return Optional.None();
+        return Box.None();
     }
 
-    public Optional<char> Next()
+    public Box<char> Next()
     {
         if (HasNext())
         {
             var c = m_current[0];
             m_current = m_current[1..];
+         
+            Move(1);
             return c;
         }
 
-        return Optional.None();
+        return Box.None();
     }
     
-    public Optional<char> NextIf(char c)
+    public Box<char> NextIf(char c)
     {
         if (HasNext() && Peek() == c)
         {
             return Next();
         }
 
-        return Optional.None();
+        return Box.None();
     }
 
-    public Optional<char> NextIf(Func<char, bool> predicate)
+    public Box<char> NextIf(Func<char, bool> predicate)
     {
         if (HasNext() && predicate(Peek()))
         {
             return Next();
         }
 
-        return Optional.None();
+        return Box.None();
     }
 
-    public Optional<string> Next(int length)
+    public Box<string> Next(int length)
     {
         if (HasNext() && m_current.Length >= length)
         {
             var s = m_current[..length];
             m_current = m_current[length..];
+
+            Move(length);
             return s;
         }
 
-        return Optional.None();
+        return Box.None();
     }
 
     public void Skip() 
@@ -100,7 +124,7 @@ public class InputStreamer
         NextIf(predicate);
     }
 
-    public Optional<int> IndexOfNext(char c)
+    public Box<int> IndexOfNext(char c)
     {
         if (HasNext())
         {
@@ -111,11 +135,11 @@ public class InputStreamer
             }
         }
 
-        return Optional.None();
+        return Box.None();
     }
 
 
-    public Optional<string> Until(Func<char, bool> stop)
+    public Box<string> Until(Func<char, bool> stop)
     {
         string str = "";
         
@@ -129,10 +153,10 @@ public class InputStreamer
             return str;
         }
 
-        return Optional.None();
+        return Box.None();
     }
 
-    public Optional<string> Until(char c)
+    public Box<string> Until(char c)
     {
         if (HasNext())
         {
@@ -147,9 +171,9 @@ public class InputStreamer
                 return str;
             }
 
-            return Optional.None();
+            return Box.None();
         }
 
-        return Optional.None();
+        return Box.None();
     }
 }

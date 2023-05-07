@@ -71,15 +71,31 @@ public sealed class Executor
         {
             return HasAction(input) || HasProperty(input);
         } 
-        catch { return false; }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);  
+            return false; 
+        }
     }
 
     internal bool MayHaveAction(string input)
     {
         try 
         {
-            return m_functionBindings.Actions.Callbacks.Any((x) => x.Callback.Data.Selectors().Any((y) => y.StartsWith(input)));
-        } catch { return false; }
+            foreach (var (Callback, Contexts) in m_functionBindings.Actions.Callbacks)
+            {
+                foreach (var selector in Callback.Data.Selectors())
+                {
+                    if (selector.StartsWith(input))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        } catch {
+            return false; 
+        }
     }
 
     internal bool HasAction(string input)
@@ -94,7 +110,17 @@ public sealed class Executor
     {
         try 
         {
-            return m_functionBindings.Properties.Callbacks.Any((x) => x.Callback.Data.Selectors().Any((y) => y.StartsWith(input)));
+            foreach (var (Callback, Contexts) in m_functionBindings.Properties.Callbacks)
+            {
+                foreach (var selector in Callback.Data.Selectors())
+                {
+                    if (input.StartsWith(selector))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         } catch { return false; }
     }
 
@@ -130,6 +156,11 @@ public sealed class Executor
             throw new ExecutorException($"No property handler found for selector {input}");
         }
         catch { throw; } // catch all other exceptions
+    }
+
+    internal void AddContext(Option token)
+    {
+        throw new NotImplementedException();
     }
 
     private bool m_hasRun;

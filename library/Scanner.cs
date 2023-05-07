@@ -1,39 +1,45 @@
-using System.Globalization;
-using System;
 using ArgumentParser.Type;
+using ArgumentParser.Context;
 
 namespace ArgumentParser;
 
 public sealed class Scanner
 {
-    public Scanner(IEnumerable<string> args, Group group) 
-    : this(string.Join(" ", args), new Executor(), group) { }
-    public Scanner(IEnumerable<string> args, Executor executor, Group group)
-    : this(string.Join(" ", args), executor, group) { }
-    public Scanner(string @string, Group group) 
-    : this(@string, new Executor(), group) { }
-    
-    public Scanner(string @string, Executor executor, Group group)
-    : this(group) 
+    public Scanner(IEnumerable<string> args, Executor executor, Options options)
+    : this("", executor, options) 
     {
-        m_streamer = new InputStreamer(@string);        
-        m_executor = executor;
-        RegisterTokenGroup("root", m_group);
+        if (args != null && args.Any())
+        {
+            m_streamer = new InputStreamer(args.Aggregate((x, y) => x += y.Contains(' ') ? $" \"{y}\"" : " " + y));
+        }
     }
 
-    private Scanner(Group group) 
+    public Scanner(IEnumerable<string> args, Options options) 
+    : this(args, new Executor(), options) { }
+    public Scanner(string @string, Options options) 
+    : this(@string, new Executor(), options) { }
+    
+    public Scanner(string @string, Executor executor, Options options)
+    : this(options) 
+    {
+        m_streamer = new InputStreamer(@string + '\0');        
+        m_executor = executor;
+        RegisterTokenGroup("root", m_options);
+    }
+
+    private Scanner(Options options) 
     {
         m_executor = null!;
         m_streamer = null!;
 
-        if (string.IsNullOrWhiteSpace(group.name))
+        if (string.IsNullOrWhiteSpace(options.name))
         {
-            m_group = group;
+            m_options = options;
             return;
         }
 
-        m_group = new Group();
-        m_group.Add(group);
+        m_options = new Options();
+        m_options.Add(options);
     }
 
     public void CallHandlers()
@@ -43,55 +49,143 @@ public sealed class Scanner
 
     private Executor Parse()
     {
-        ParseParameters();
-        return m_executor;
-    }
-
-    private void ParseParameters()
-    {
-        List<Token> tokens = new();
         while (m_streamer.HasNext())
         {
             m_streamer.SkipIf(char.IsWhiteSpace);
 
-            var c = m_streamer.Peek();
-            Console.WriteLine(m_streamer.Until(char.IsWhiteSpace));
+            m_streamer.Until(char.IsWhiteSpace).Require(m_executor.MayHaveAny)
+                .Some(ParseString)
+                .None(() => throw new NotImplementedException("TODO: Parsing error: Implement error handling."));
+        }
 
+        return m_executor;
+    }
+
+    private void ParseString(string str)
+    {
+        if (m_executor.HasAction(str))
+        {
+            ParseAction(str);
+        }
+        else if (m_executor.MayHaveProperty(str))
+        {
+            ParseProperty(str);
+        }
+        else
+        {
+            Console.WriteLine("error");
         }
     }
 
-    private void RegisterTokenGroup(string parent, Group group)
+    private void ParseAction(string candidate)
     {
-        foreach (var token in group.Tokens)
+        if (m_executor.HasAction(candidate))
         {
-            if (!parent.EndsWith(token.name))
-            {
-                RegisterToken(token);
-            }
+            var token = m_registeredTokens.Find(x => {
+                if (x.type != Option.Type.ACTION)
+                {
+                    return false;
+                }
+
+                var action = (ActionValue)x.value;
+                return action.Selectors().Contains(candidate);
+            }) ?? throw new Exception($"Unexpected error. (The token {candidate} was not found.)");
+        
+            var handler = m_executor.GetActionHandler(candidate);
+            var context = new ActionContext(candidate, token);
+            m_executor.AddContext(handler, context);
+        }
+    }
+
+    private void ParseProperty(string candidate)
+    {
+        var candidate_stream = new InputStreamer(candidate + '\0');
+        var bestSplit = candidate_stream.Until(c => c == '\0' || !char.IsLetterOrDigit(c)).Unwrap();
+
+        if (bestSplit == null || !m_executor.HasProperty(bestSplit))
+        {
+            return;
         }
 
-        foreach (var subGroup in group.SubGroups)
+        var value = string.Empty;
+        if (candidate.Length != candidate_stream.ReadIndex)
+        {
+            candidate_stream.Skip(1); // skip the delimiter
+            value = candidate_stream.Until('\0').Unwrap() ?? string.Empty;
+        }
+
+        var next = ParseNextTokenAsValue();
+        var remaining = next;
+        while (next.Length > 0)
+        {
+            next = ParseNextTokenAsValue();
+            remaining += " " + next;
+        }
+        value = remaining.Trim();
+
+        var token = m_registeredTokens.Find(x => {
+                if (x.type != Option.Type.PROPERTY)
+                {
+                    return false;
+                }
+
+                var prop = (PropertyValue)x.value;
+                return prop.Selectors().Contains(bestSplit);
+            }) ?? throw new Exception($"Unexpected error. (The token {bestSplit} was not found.)");
+
+        var context = new PropertyContext(candidate + remaining, token, bestSplit, value);
+        var handler = m_executor.GetPropertyHandler(bestSplit);
+
+        m_executor.AddContext(handler, context);
+    }
+
+    private string ParseNextTokenAsValue()
+    {
+        m_streamer.Save();
+
+        m_streamer.SkipIf(char.IsWhiteSpace);
+        var value = m_streamer.Until(char.IsWhiteSpace).Unwrap() ?? string.Empty;
+
+        if (value.Length == 0 || m_executor.MayHaveProperty(value) || m_executor.HasAction(value))
+        {
+            m_streamer.Restore();
+            return string.Empty;
+        }
+
+        return value;
+    }
+
+    private void RegisterTokenGroup(string parent, Options group)
+    {
+        foreach (var token in group.Siblings)
+        {
+            RegisterToken(token);
+        }
+
+        foreach (var subGroup in group.Children)
         {
             RegisterTokenGroup($"{parent}.{subGroup.name}", subGroup);
         }
     }
 
-    private void RegisterToken(Token token)
+    private void RegisterToken(Option token)
     {
+        m_registeredTokens.Add(token);
+
         switch (token.type)
         {
-            case Token.Type.ACTION:
+            case Option.Type.ACTION:
                 m_executor.AddHandler((ActionValue)token.value, token.action);
                 break;
-            case Token.Type.PROPERTY:
+            case Option.Type.PROPERTY:
                 m_executor.AddHandler((PropertyValue)token.value, token.action);
                 break;
         }
     }
     
     private readonly InputStreamer m_streamer;
-    private readonly List<Token> m_foundTokens = new();
+    private readonly List<Option> m_registeredTokens = new();
     private readonly Executor m_executor;
-    private readonly Group m_group;
+    private readonly Options m_options;
 }
 

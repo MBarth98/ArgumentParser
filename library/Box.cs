@@ -5,39 +5,44 @@ using System.Threading.Tasks;
 
 namespace ArgumentParser
 {
-    public static class Optional
+    public static class Box
     {
-        public static Optional<T> Some<T>(T value)
+        public static Box<T> Some<T>(T value)
         {
-            return new Optional<T>(value);
+            return new Box<T>(value);
         }
 
-        public static Optional<bool> Some()
+        public static Box<bool> Some()
         {
-            return new Optional<bool>(true);
+            return new Box<bool>(true);
         }
 
-        public static Optional<dynamic> None()
+        public static Box<dynamic> None()
         {
-            return new Optional<object>(default, false);
+            return new Box<object>(default, false);
         }
     }
 
-    public class Optional<T>
+    public class Box<T>
     {
-        public Optional(T? value)
+        public Box(T? value)
         {
             m_value = value;
             IsPresent = value != null;
         }
 
-        public Optional(T? value, bool isPresent)
+        public Box(T? value, bool isPresent)
         {
             m_value = value;
             IsPresent = isPresent;
         }
+        
+        public T? Unwrap()
+        {
+            return m_value;
+        }
 
-        public Optional<T> Some(Action<T> func)
+        public Box<T> Some(Action<T> func)
         {
             if (IsPresent)
             {
@@ -47,7 +52,7 @@ namespace ArgumentParser
             return this;
         }
 
-        public Optional<T> None(Action func)
+        public Box<T> None(Action func)
         {
             if (!IsPresent)
             {
@@ -57,22 +62,28 @@ namespace ArgumentParser
             return this;
         }
 
-        public static implicit operator Optional<T>(T? value)
+        public Box<T> Require(Func<T, bool> predicate)
         {
-            return new Optional<T>(value, value != null);
+            IsPresent = IsPresent && predicate(m_value!);
+            return this;
         }
 
-        public static implicit operator Optional<T>(Optional<dynamic> value)
+        public static implicit operator Box<T>(T? value)
+        {
+            return new Box<T>(value, value != null);
+        }
+
+        public static implicit operator Box<T>(Box<dynamic> value)
         {
             if (value.IsPresent)
             {
-                return new Optional<T>((T)value.m_value!, true);
+                return new Box<T>((T)value.m_value!, true);
             }
 
-            return new Optional<T>(default, false);
+            return new Box<T>(default, false);
         }
 
-        public static implicit operator T(Optional<T> value)
+        public static implicit operator T(Box<T> value)
         {
             if (value.IsPresent)
             {

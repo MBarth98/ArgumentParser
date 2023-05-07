@@ -2,7 +2,7 @@ using ArgumentParser.Context;
 
 namespace ArgumentParser.Type
 {
-    public class Token
+    public class Option
     {
         internal enum Type
         {
@@ -15,7 +15,7 @@ namespace ArgumentParser.Type
         public dynamic action;
         internal Type type;
 
-        public Token(PropertyFunction action, PropertyValue property) 
+        public Option(PropertyFunction action, PropertyValue property) 
         {
             name = property.Name();
             value = property;
@@ -23,7 +23,7 @@ namespace ArgumentParser.Type
             this.action = action;
         }
 
-        public Token(ActionFunction action, ActionValue flag)
+        public Option(ActionFunction action, ActionValue flag)
         {
             name = flag.Name();
             value = flag;
