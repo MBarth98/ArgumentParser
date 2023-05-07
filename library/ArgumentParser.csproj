@@ -1,3 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -25,5 +26,7 @@
     <Content Include="Error\Validator\DefaultValidators.cs" />
     <Content Include="Context\Context.cs" />
     <Content Include="Type\ActionValue.cs" />
+    <Content Include="InputStreamer.cs" />
+    <Content Include="Optional.cs" />
   </ItemGroup>
 </Project>

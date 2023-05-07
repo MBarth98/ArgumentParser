@@ -1,37 +1,39 @@
-using System.Diagnostics;
-using ArgumentParser.Context;
+using System.Globalization;
+using System;
 using ArgumentParser.Type;
 
 namespace ArgumentParser;
 
 public sealed class Scanner
 {
-    public Scanner(string @string, Group group) : this(@string, new Executor(), group) { }
-    public Scanner(string @string, Executor executor, Group group) : this(@string.Split(' '), executor, group) { }
-    public Scanner(IEnumerable<string> args, Group group) : this(args, new Executor(), group) { }
+    public Scanner(IEnumerable<string> args, Group group) 
+    : this(string.Join(" ", args), new Executor(), group) { }
     public Scanner(IEnumerable<string> args, Executor executor, Group group)
-    : this(group)
+    : this(string.Join(" ", args), executor, group) { }
+    public Scanner(string @string, Group group) 
+    : this(@string, new Executor(), group) { }
+    
+    public Scanner(string @string, Executor executor, Group group)
+    : this(group) 
     {
-        m_args = new List<string>(args);
+        m_streamer = new InputStreamer(@string);        
         m_executor = executor;
+        RegisterTokenGroup("root", m_group);
     }
 
     private Scanner(Group group) 
     {
-        m_args = new List<string>();
-        m_executor = new Executor();
-        
+        m_executor = null!;
+        m_streamer = null!;
+
         if (string.IsNullOrWhiteSpace(group.name))
         {
             m_group = group;
-            RegisterTokenGroup("root", m_group);
             return;
         }
 
         m_group = new Group();
         m_group.Add(group);
-
-        RegisterTokenGroup("root", m_group);
     }
 
     public void CallHandlers()
@@ -47,12 +49,16 @@ public sealed class Scanner
 
     private void ParseParameters()
     {
-        for (int i = 0; i < m_args.Count; i++)
+        List<Token> tokens = new();
+        while (m_streamer.HasNext())
         {
-            
+            m_streamer.SkipIf(char.IsWhiteSpace);
+
+            var c = m_streamer.Peek();
+            Console.WriteLine(m_streamer.Until(char.IsWhiteSpace));
+
         }
     }
-
 
     private void RegisterTokenGroup(string parent, Group group)
     {
@@ -82,9 +88,9 @@ public sealed class Scanner
                 break;
         }
     }
-
+    
+    private readonly InputStreamer m_streamer;
     private readonly List<Token> m_foundTokens = new();
-    private readonly List<string> m_args;
     private readonly Executor m_executor;
     private readonly Group m_group;
 }

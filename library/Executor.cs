@@ -56,6 +56,15 @@ public sealed class Executor
     }
 
 
+    internal bool MayHaveAny(string input)
+    {
+        try 
+        {
+            return MayHaveAction(input) || MayHaveProperty(input);
+        } 
+        catch { return false; }
+    }
+
     internal bool HasAny(string input)
     {
         try 
@@ -63,6 +72,14 @@ public sealed class Executor
             return HasAction(input) || HasProperty(input);
         } 
         catch { return false; }
+    }
+
+    internal bool MayHaveAction(string input)
+    {
+        try 
+        {
+            return m_functionBindings.Actions.Callbacks.Any((x) => x.Callback.Data.Selectors().Any((y) => y.StartsWith(input)));
+        } catch { return false; }
     }
 
     internal bool HasAction(string input)

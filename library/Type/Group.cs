@@ -33,6 +33,32 @@ namespace ArgumentParser.Type
             name = "";
         }
 
+        public string ToPath()
+        {
+            return ToPath(this.name);
+        }
+
+        public string ToPath(string parent)
+        {
+            var builder = new StringBuilder();
+            #if DEBUG
+
+            foreach (var token in this.Tokens)
+            {
+                builder.AppendLine($"{parent}/{token.name}");
+            }
+
+            foreach (var group in this.SubGroups)
+            {
+                builder.Append($"{group.ToPath($"{parent}/{group.name}")}");
+            }
+
+            #else
+            builder.Append("path output is not enabled in release builds.");
+            #endif
+            return builder.ToString();
+        }
+
         public string ToDot(bool root = true)
         {
             var builder = new StringBuilder();
@@ -72,7 +98,7 @@ namespace ArgumentParser.Type
             }
 
             #else
-            builder.AppendLine("dot graph output is not enabled in release builds.");
+            builder.Append("dot graph output is not enabled in release builds.");
             #endif
             return builder.ToString();
         }

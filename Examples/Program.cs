@@ -132,6 +132,9 @@ public class Program
         root.Add(remove);
 
         Console.WriteLine(root.ToDot());
+        Console.WriteLine();
+        Console.WriteLine(root.ToPath());
+
 
         var arguments = new Scanner(args, root);
         
