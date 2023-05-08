@@ -20,7 +20,7 @@ public class InputStreamer
 
     public void Restore()
     {
-        m_consumed = 0;
+        Reset();
         Next(m_savedIndex);
     }
 
@@ -34,6 +34,7 @@ public class InputStreamer
     public void Reset()
     {
         m_current = m_original;
+        m_consumed = 0;
     }
 
     public bool HasNext()

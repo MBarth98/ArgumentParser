@@ -16,6 +16,7 @@ public sealed class Scanner
 
     public Scanner(IEnumerable<string> args, Options options) 
     : this(args, new Executor(), options) { }
+    
     public Scanner(string @string, Options options) 
     : this(@string, new Executor(), options) { }
     
@@ -113,7 +114,6 @@ public sealed class Scanner
             candidate_stream.Skip(1); // skip the delimiter
             value = candidate_stream.Until('\0').Unwrap() ?? string.Empty;
         }
-
         var next = ParseNextTokenAsValue();
         var remaining = next;
         while (next.Length > 0)
@@ -122,21 +122,35 @@ public sealed class Scanner
             remaining += " " + next;
         }
         value = remaining.Trim();
+        
+        if (value.StartsWith('"') && !value.EndsWith('"'))
+        {
+            value += m_streamer.Until('"').Unwrap() ?? string.Empty;
+            value += m_streamer.Next().Unwrap();
+        }
 
-        var token = m_registeredTokens.Find(x => {
-                if (x.type != Option.Type.PROPERTY)
-                {
-                    return false;
-                }
-
-                var prop = (PropertyValue)x.value;
-                return prop.Selectors().Contains(bestSplit);
-            }) ?? throw new Exception($"Unexpected error. (The token {bestSplit} was not found.)");
+        var token = FindOption(Option.Type.PROPERTY, bestSplit) 
+            ?? throw new Exception($"Unexpected error. (The token {candidate} was not found.)");
 
         var context = new PropertyContext(candidate + remaining, token, bestSplit, value);
         var handler = m_executor.GetPropertyHandler(bestSplit);
 
         m_executor.AddContext(handler, context);
+    }
+
+
+
+    private Option? FindOption(Option.Type type, string match)
+    {
+        return m_registeredTokens.Find(x => {
+                if (x.type != type)
+                {
+                    return false;
+                }
+
+                var prop = (Parameter)x.value;
+                return prop.Selectors().Contains(match);
+            }) ?? null;
     }
 
     private string ParseNextTokenAsValue()
@@ -146,7 +160,7 @@ public sealed class Scanner
         m_streamer.SkipIf(char.IsWhiteSpace);
         var value = m_streamer.Until(char.IsWhiteSpace).Unwrap() ?? string.Empty;
 
-        if (value.Length == 0 || m_executor.MayHaveProperty(value) || m_executor.HasAction(value))
+        if (value.Length == 0 || m_executor.HasProperty(value) || m_executor.HasAction(value))
         {
             m_streamer.Restore();
             return string.Empty;

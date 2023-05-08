@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using ArgumentParser.Context;
+﻿using ArgumentParser.Context;
 using ArgumentParser.Type;
 using ArgumentParser.Error.Exceptional;
 
@@ -16,6 +15,59 @@ public sealed class Executor
         }
 
         m_hasRun = true;
+
+        foreach (var action in SortActions())
+        {
+            if (action() is not CallbackState.CONTINUE)
+            {
+                return;
+            }
+        }
+    }
+
+    public IEnumerable<Func<CallbackState>> SortActions()
+    {
+        var actions = m_functionBindings.Actions;
+        var properties = m_functionBindings.Properties;
+
+        List<int> precedences = new();
+
+        foreach (var (callback, _) in actions.Callbacks)
+        {
+            precedences.Add(callback.Data.Precedence());
+        }
+
+        foreach (var (callback, _) in properties.Callbacks)
+        {
+            precedences.Add(callback.Data.Precedence());
+        }
+
+        precedences = precedences.Distinct().OrderByDescending(x => x).ToList();
+
+        foreach (var precedence in precedences)
+        {
+            foreach (var (callback, contexts) in actions.Callbacks)
+            {
+                if (callback.Data.Precedence() == precedence)
+                {
+                    foreach (var context in contexts)
+                    {
+                        yield return () => callback.Callback(context);
+                    }
+                }
+            }
+
+            foreach (var (callback, contexts) in properties.Callbacks)
+            {
+                if (callback.Data.Precedence() == precedence)
+                {
+                    foreach (var context in contexts)
+                    {
+                        yield return () => callback.Callback(context);
+                    }
+                }
+            }
+        }
     }
 
     public void AddHandler(ActionValue flag, ActionFunction action)
@@ -114,7 +166,7 @@ public sealed class Executor
             {
                 foreach (var selector in Callback.Data.Selectors())
                 {
-                    if (input.StartsWith(selector))
+                    if (selector.StartsWith(input))
                     {
                         return true;
                     }
