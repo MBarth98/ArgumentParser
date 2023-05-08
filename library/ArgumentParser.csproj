@@ -6,14 +6,30 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="Parser.cs" />
-    <Content Include="Validator.cs" />
+    <Content Include="Scanner.cs" />
+    <Content Include="Error\Validator\Validator.cs" />
     <Content Include="Context\DefaultContext.cs" />
     <Content Include="Context\FlagContext.cs" />
-    <Content Include="Context\HandlerList.cs" />
     <Content Include="Context\PropertyContext.cs" />
     <Content Include="Type\FlagType.cs" />
-    <Content Include="Type\PropertyType.cs" />
     <Content Include="Type\ValueTypeEnum.cs" />
+    <Content Include="Executor.cs" />
+    <Content Include="Type\SelectorSet.cs" />
+    <Content Include="Type\Callbacks.cs" />
+    <Content Include="Type\Identifier.cs" />
+    <Content Include="Type\Property.cs" />
+    <Content Include="Type\Flag.cs" />
+    <Content Include="Type\Group.cs" />
+    <Content Include="STDExtension.cs" />
+    <Content Include="Type\Parameter.cs" />
+    <Content Include="Error\Validator\DefaultValidators.cs" />
+    <Content Include="Context\Context.cs" />
+    <Content Include="Type\ActionValue.cs" />
+    <Content Include="InputStreamer.cs" />
+    <Content Include="Optional.cs" />
+    <Content Include="Type\Options.cs" />
+    <Content Include="Type\Option.cs" />
+    <Content Include="OptionalType.cs" />
+    <Content Include="Box.cs" />
   </ItemGroup>
 </Project>

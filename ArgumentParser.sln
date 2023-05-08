@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArgumentParser", "library\A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "test\test.csproj", "{423FE246-54F9-494D-8C3C-A9C5010F94FA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Examples", "Examples\Examples.csproj", "{D93EBFB8-0D2D-400D-A518-BF8E9778D76F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{423FE246-54F9-494D-8C3C-A9C5010F94FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{423FE246-54F9-494D-8C3C-A9C5010F94FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{423FE246-54F9-494D-8C3C-A9C5010F94FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D93EBFB8-0D2D-400D-A518-BF8E9778D76F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D93EBFB8-0D2D-400D-A518-BF8E9778D76F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D93EBFB8-0D2D-400D-A518-BF8E9778D76F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D93EBFB8-0D2D-400D-A518-BF8E9778D76F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

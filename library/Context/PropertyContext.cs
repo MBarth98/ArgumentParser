@@ -1,17 +1,23 @@
-namespace Argument.Context;
+using ArgumentParser.Type;
 
-using Argument.Type;
+namespace ArgumentParser.Context;
 
-public class PropertyContext : DefaultContext
+public sealed class PropertyContext : BaseContext
 {
-    public PropertyContext(DefaultContext context, string key, string value) : base(ref context)
+    public PropertyContext(string text, Option option, string key, string value)
+    : base(text, option)
     {
         this.key = key;
         this.value = value;
     }
-
+    
+    public PropertyContext(BaseContext context, string key, string value) 
+    : base(ref context)
+    {
+        this.key = key;
+        this.value = value;
+    }
+    
     public readonly string key;
     public readonly string value;
 }
-
-internal record PropertyHandler(Property data, Action<PropertyContext> callback);

@@ -1,15 +1,13 @@
-namespace Argument.Context;
+using ArgumentParser.Type;
 
-using Argument.Type;
+namespace ArgumentParser.Context;
 
-public class FlagContext : DefaultContext
+public sealed class ActionContext : BaseContext
 {
-    public FlagContext(DefaultContext context, string name) : base(ref context)
-    {
-        this.name = name;
-    }
+    public ActionContext(string text, Option option)
+    : base(text, option) { }
+    
+    public ActionContext(BaseContext context) 
+    : base(ref context) { }
 
-    public readonly string name;
 }
-
-internal record FlagHandler(Flag flag, Action<FlagContext> callback);
