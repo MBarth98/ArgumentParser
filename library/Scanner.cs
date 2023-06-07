@@ -5,7 +5,17 @@ namespace ArgumentParser;
 
 public sealed class Scanner
 {
-    public Scanner(IEnumerable<string> args, Executor executor, Options options)
+    public static void Execute(IEnumerable<string> args, Options options)
+    {
+        new Scanner(args, new Executor(), options).CallHandlers();
+    }
+
+    public static void Execute(string @string, Options options)
+    {
+        new Scanner(@string, options).CallHandlers();
+    }
+
+    private Scanner(IEnumerable<string> args, Executor executor, Options options)
     : this("", executor, options) 
     {
         if (args != null && args.Any())
@@ -14,13 +24,13 @@ public sealed class Scanner
         }
     }
 
-    public Scanner(IEnumerable<string> args, Options options) 
+    private Scanner(IEnumerable<string> args, Options options) 
     : this(args, new Executor(), options) { }
     
-    public Scanner(string @string, Options options) 
+    private Scanner(string @string, Options options) 
     : this(@string, new Executor(), options) { }
     
-    public Scanner(string @string, Executor executor, Options options)
+    private Scanner(string @string, Executor executor, Options options)
     : this(options) 
     {
         m_streamer = new InputStreamer(@string + '\0');        
@@ -43,7 +53,7 @@ public sealed class Scanner
         m_options.Add(options);
     }
 
-    public void CallHandlers()
+    private void CallHandlers()
     {
         Parse().Execute();
     }
