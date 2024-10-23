@@ -74,7 +74,7 @@ public sealed class Scanner
 
     private void ParseString(string str)
     {
-        if (m_executor.HasAction(str))
+        if (m_executor.MayHaveAction(str))
         {
             ParseAction(str);
         }
@@ -110,8 +110,11 @@ public sealed class Scanner
 
     private void ParseProperty(string candidate)
     {
+        string? bestSplit = null;
         var candidate_stream = new InputStreamer(candidate + '\0');
-        var bestSplit = candidate_stream.Until(c => c == '\0' || !char.IsLetterOrDigit(c)).Unwrap();
+        candidate_stream.Until(c => c == '\0' || !char.IsLetterOrDigit(c))
+            .Some(x => bestSplit = x)
+            .None(() => bestSplit = candidate);
 
         if (bestSplit == null || !m_executor.HasProperty(bestSplit))
         {
@@ -129,7 +132,10 @@ public sealed class Scanner
         while (next.Length > 0)
         {
             next = ParseNextTokenAsValue();
-            remaining += " " + next;
+            if (!string.IsNullOrWhiteSpace(next))
+            {
+                remaining += " " + next;
+            }
         }
         value = remaining.Trim();
         
@@ -147,9 +153,7 @@ public sealed class Scanner
 
         m_executor.AddContext(handler, context);
     }
-
-
-
+    
     private Option? FindOption(Option.Type type, string match)
     {
         return m_registeredTokens.Find(x => {

@@ -117,19 +117,6 @@ public sealed class Executor
         catch { return false; }
     }
 
-    internal bool HasAny(string input)
-    {
-        try 
-        {
-            return HasAction(input) || HasProperty(input);
-        } 
-        catch (Exception e)
-        {
-            Console.WriteLine(e);  
-            return false; 
-        }
-    }
-
     internal bool MayHaveAction(string input)
     {
         try 
